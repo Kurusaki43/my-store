@@ -3,11 +3,14 @@ import cors from "cors";
 import morgan from "morgan";
 import { env } from "@/config/env";
 import { morganStream } from "@/config/logger";
+import { notFound, globalErrorHandler } from "@/middleware/errorHandler";
 import { orderRoute } from "@/modules/order/order.route";
 import { authRoute } from "@/modules/auth/auth.route";
 import { userRoute } from "@/modules/user/user.route";
 import { productRoute } from "@/modules/product/product.route";
 import { paymentRoute } from "@/modules/payment/payment.route";
+import { asyncHandler } from "./utils/asyncHandler";
+import { AppError } from "./utils/AppError";
 
 const app = express();
 
@@ -28,5 +31,8 @@ v1.use("/orders", orderRoute);
 v1.use("/payments", paymentRoute);
 
 app.use("/api/v1", v1);
+
+app.use(notFound);
+app.use(globalErrorHandler);
 
 export default app;
