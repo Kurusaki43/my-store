@@ -1,4 +1,3 @@
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { orderRoute } from "@/modules/order/order.route";
@@ -6,10 +5,11 @@ import { authRoute } from "@/modules/auth/auth.route";
 import { userRoute } from "@/modules/user/user.route";
 import { productRoute } from "@/modules/product/product.route";
 import { paymentRoute } from "@/modules/payment/payment.route";
+import { env } from "@/config/env";
 
 const app = express();
 
-app.use(cors({ origin: process.env["CLIENT_URL"] ?? "http://localhost:5173" }));
+app.use(cors({ origin: env.CLIENT_URL }));
 app.use(express.json());
 
 // API versioning
