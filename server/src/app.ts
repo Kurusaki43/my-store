@@ -3,7 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { env } from '@/config/env';
 import { morganStream } from '@/config/logger';
-import { notFound, globalErrorHandler } from '@/middleware/errorHandler';
+import { notFound, globalErrorHandler } from '@/middlewares/errorHandler';
 import { orderRoute } from '@/modules/order/order.route';
 import { authRoute } from '@/modules/auth/auth.route';
 import { userRoute } from '@/modules/user/user.route';

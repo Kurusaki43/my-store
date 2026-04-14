@@ -1,12 +1,18 @@
-import type { Response } from "express";
+import type { HTTP_STATUS } from '@/constants/httpStatus';
+import type { Response } from 'express';
 
-export const sendSuccess = (
-  res: Response,
-  data: unknown,
-  statusCode = 200,
-  meta?: Record<string, unknown>,
-): void => {
-  res.status(statusCode).json({ success: true, data, ...(meta && { meta }) });
+type HttpStatus = (typeof HTTP_STATUS)[keyof typeof HTTP_STATUS];
+
+interface SendSuccessParams {
+  res: Response;
+  statusCode: HttpStatus;
+  msg: string;
+  data?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
+}
+
+export const sendSuccess = ({ res, msg, data, statusCode, meta }: SendSuccessParams): void => {
+  res.status(statusCode).json({ success: true, msg, data, ...(meta && { meta }) });
 };
 
 export const sendFail = (res: Response, message: string, statusCode = 400): void => {

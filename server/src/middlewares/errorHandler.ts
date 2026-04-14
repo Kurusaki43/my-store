@@ -1,10 +1,10 @@
-import type { Request, Response, NextFunction } from "express";
-import { ZodError } from "zod";
-import { Error as MongooseError } from "mongoose";
-import { AppError } from "@/utils/AppError";
-import { logger } from "@/config/logger";
-import { env } from "@/config/env";
-import { HTTP_STATUS } from "@/constants/httpStatus";
+import type { Request, Response, NextFunction } from 'express';
+import type { ZodError } from 'zod';
+import { Error as MongooseError } from 'mongoose';
+import { AppError } from '@/utils/AppError';
+import { logger } from '@/config/logger';
+import { env } from '@/config/env';
+import { HTTP_STATUS } from '@/constants/httpStatus';
 
 interface NormalizedError {
   statusCode: number;
@@ -17,15 +17,15 @@ interface MongoServerError extends Error {
 }
 
 const handleZodError = (err: ZodError): NormalizedError => ({
-  statusCode: HTTP_STATUS.UNPROCESSABLE_ENTITY,
-  message: err.issues.map((e) => `${e.path.join(".")}: ${e.message}`).join(", "),
+  statusCode: HTTP_STATUS.BAD_REQUEST,
+  message: err.issues.map((e) => `${e.path.join('.')}: ${e.message}`).join(', '),
 });
 
 const handleValidationError = (err: MongooseError.ValidationError): NormalizedError => ({
   statusCode: HTTP_STATUS.BAD_REQUEST,
   message: Object.values(err.errors)
     .map((e) => e.message)
-    .join(", "),
+    .join(', '),
 });
 
 const handleCastError = (err: MongooseError.CastError): NormalizedError => ({
@@ -34,7 +34,7 @@ const handleCastError = (err: MongooseError.CastError): NormalizedError => ({
 });
 
 const handleDuplicateKey = (err: MongoServerError): NormalizedError => {
-  const field = Object.keys(err.keyValue)[0] ?? "field";
+  const field = Object.keys(err.keyValue)[0] ?? 'field';
   return {
     statusCode: HTTP_STATUS.CONFLICT,
     message: `${field} already exists`,
@@ -43,17 +43,23 @@ const handleDuplicateKey = (err: MongoServerError): NormalizedError => {
 
 const handleJwtError = (err: Error): NormalizedError => ({
   statusCode: HTTP_STATUS.UNAUTHORIZED,
-  message: err.name === "TokenExpiredError" ? "Token expired" : "Invalid token",
+  message: err.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token',
 });
 
 const isMongoServerError = (err: unknown): err is MongoServerError =>
-  err instanceof Error && "code" in err && (err as MongoServerError).code === 11000;
+  err instanceof Error && 'code' in err && (err as MongoServerError).code === 11000;
+
+const isZodError = (error: unknown): error is ZodError => {
+  return (
+    typeof error === 'object' && error !== null && 'name' in error && error.name === 'ZodError'
+  );
+};
 
 const normalizeError = (err: unknown): NormalizedError => {
   if (err instanceof AppError) {
     return { statusCode: err.statusCode, message: err.message };
   }
-  if (err instanceof ZodError) {
+  if (isZodError(err)) {
     return handleZodError(err);
   }
   if (err instanceof MongooseError.ValidationError) {
@@ -65,12 +71,13 @@ const normalizeError = (err: unknown): NormalizedError => {
   if (isMongoServerError(err)) {
     return handleDuplicateKey(err);
   }
-  if (err instanceof Error && ["JsonWebTokenError", "TokenExpiredError"].includes(err.name)) {
+  if (err instanceof Error && ['JsonWebTokenError', 'TokenExpiredError'].includes(err.name)) {
     return handleJwtError(err);
   }
+
   return {
     statusCode: HTTP_STATUS.INTERNAL_SERVER_ERROR,
-    message: "Internal Server Error",
+    message: 'Internal Server Error',
   };
 };
 
@@ -90,12 +97,12 @@ export const globalErrorHandler = (
     stack: err instanceof Error ? err.stack : undefined,
   });
 
-  if (env.NODE_ENV === "development") {
+  if (env.NODE_ENV === 'development') {
     res.status(statusCode).json({
       success: false,
       statusCode,
       message,
-      error: err instanceof Error ? err.name : "UnknownError",
+      error: err,
       stack: err instanceof Error ? err.stack : undefined,
     });
     return;

@@ -1,3 +1,4 @@
+import { HTTP_STATUS } from '@/constants/httpStatus';
 import type { RequestHandler } from 'express';
 import type { ParamsDictionary } from 'express-serve-static-core';
 import type { ParsedQs } from 'qs';
@@ -31,8 +32,8 @@ export const validate =
         next({
           name: error.name,
           issues: error.issues,
-          message: 'Validation error',
-          statusCode: 400,
+          message: 'Validation Error - Invalid request data',
+          statusCode: HTTP_STATUS.BAD_REQUEST,
         });
         return;
       }
