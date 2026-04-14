@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import z from "zod";
-config({ path: `.env.${process.env.NODE_ENV ?? "development"}` });
+config({ path: `.env.${process.env.NODE_ENV ?? "development"}`, override: false });
 
 const schema = z.object({
   NODE_ENV: z

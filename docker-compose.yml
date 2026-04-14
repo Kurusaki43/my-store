@@ -1,0 +1,44 @@
+services:
+  mongo:
+    image: mongo:8
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  server:
+    build:
+      context: ./server
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    env_file:
+      - ./server/.env.production
+    environment:
+      MONGO_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongo:27017/my-store?authSource=admin
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "5000:5000"
+
+  client:
+    build:
+      context: ./client
+    restart: unless-stopped
+    depends_on:
+      - server
+    env_file:
+      - ./client/.env.production.local
+    ports:
+      - "3000:3000"
+
+volumes:
+  mongo_data:

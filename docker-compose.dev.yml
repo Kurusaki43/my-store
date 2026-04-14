@@ -1,0 +1,21 @@
+services:
+  server:
+    build:
+      target: dev
+    env_file:
+      - ./server/.env.development
+    environment:
+      MONGO_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongo:27017/my-store?authSource=admin
+    volumes:
+      - ./server/src:/app/src
+    restart: no
+
+  client:
+    build:
+      target: dev
+    env_file:
+      - ./client/.env.development.local
+    volumes:
+      - ./client/src:/app/src
+      - ./client/public:/app/public
+    restart: no
