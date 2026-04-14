@@ -28,15 +28,10 @@ const devFormat = combine(
   errors({ stack: true }),
   splat(),
   printf(({ level, message, timestamp, stack, ...meta }) => {
-    return [
-      `[${timestamp}]`,
-      level,
-      message,
-      stack ? `\n${stack}` : "",
-      Object.keys(meta).length
-        ? `\nmeta: ${JSON.stringify(meta, null, 2)}`
-        : "",
-    ].join(" ");
+    const stackStr = typeof stack === "string" ? `\n${stack}` : "";
+    const metaStr =
+      Object.keys(meta).length ? `\nmeta: ${JSON.stringify(meta, null, 2)}` : "";
+    return [`[${String(timestamp)}]`, level, String(message), stackStr, metaStr].join(" ");
   }),
 );
 

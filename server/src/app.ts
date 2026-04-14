@@ -9,8 +9,6 @@ import { authRoute } from "@/modules/auth/auth.route";
 import { userRoute } from "@/modules/user/user.route";
 import { productRoute } from "@/modules/product/product.route";
 import { paymentRoute } from "@/modules/payment/payment.route";
-import { asyncHandler } from "./utils/asyncHandler";
-import { AppError } from "./utils/AppError";
 
 const app = express();
 
