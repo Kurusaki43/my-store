@@ -1,6 +1,6 @@
 import { AppError } from '@/utils/AppError';
 import { User } from '../user/user.model';
-import type { RegisterDTO } from './auth.validation';
+import type { LoginDTO, RegisterDTO } from './auth.validation';
 import { HTTP_STATUS, SESSION_TTL_DAYS } from '@/constants/httpStatus';
 import { generateRefreshToken, hashRefreshToken, signAccessToken } from '@/utils/jwt';
 import { Session } from './auth.model';
@@ -24,6 +24,33 @@ export const AuthService = {
       expiresAt: expireAfterDays(SESSION_TTL_DAYS),
     });
 
+    const accessToken = signAccessToken({
+      userId: user._id,
+      sessionId: session._id,
+    });
+
+    return { user, accessToken, refreshToken, sessionId: session._id.toString() };
+  },
+
+  async login(loginData: LoginDTO, ip: string, userAgent: string) {
+    const user = await User.findOne({ email: loginData.email }).select('+password');
+    if (!user) {
+      throw new AppError('Invalid email or password', HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const isMatch = await user.comparePassword(loginData.password);
+    if (!isMatch) {
+      throw new AppError('Invalid email or password', HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const refreshToken = generateRefreshToken();
+    const session = await Session.create({
+      user: user._id,
+      refreshTokenHash: hashRefreshToken(refreshToken),
+      ip,
+      userAgent,
+      expiresAt: expireAfterDays(7),
+    });
     const accessToken = signAccessToken({
       userId: user._id,
       sessionId: session._id,

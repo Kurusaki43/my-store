@@ -11,4 +11,10 @@ export const registerSchema = z.object({
   name: z.string({ error: 'Name is required' }).min(1, 'Name is required'),
 });
 
+export const loginSchema = z.object({
+  email: emailSchema,
+  password: passwordSchema,
+});
+
+export type LoginDTO = z.infer<typeof loginSchema>;
 export type RegisterDTO = z.infer<typeof registerSchema>;
