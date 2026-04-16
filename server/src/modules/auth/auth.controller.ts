@@ -2,7 +2,13 @@ import { asyncHandler } from '@/utils/asyncHandler';
 import { extractDeviceInfo } from '@/utils/helpers';
 import type { LoginDTO, RegisterDTO } from './auth.validation';
 import { AuthService } from './auth.service';
-import { clearCookies, getCookie, SESSION_ID_COOKIE_NAME, setCookies } from '@/utils/cookies';
+import {
+  clearCookies,
+  getCookie,
+  REFRESH_TOKEN_COOKIE_NAME,
+  SESSION_ID_COOKIE_NAME,
+  setCookies,
+} from '@/utils/cookies';
 import { sendSuccess } from '@/utils/response';
 import { HTTP_STATUS } from '@/constants/httpStatus';
 import { AppError } from '@/utils/AppError';
@@ -59,6 +65,23 @@ export const AuthController = {
       res,
       statusCode: HTTP_STATUS.OK,
       message: 'Logout successful',
+    });
+  }),
+  refresh: asyncHandler(async (req, res) => {
+    const sessionId = getCookie(req, SESSION_ID_COOKIE_NAME);
+    const refreshToken = getCookie(req, REFRESH_TOKEN_COOKIE_NAME);
+    if (!sessionId || !refreshToken) {
+      throw new AppError('Unauthorized', HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const { newAccessToken, newRefreshToken } = await AuthService.refresh(refreshToken, sessionId);
+    const resWithCookies = setCookies(res, newRefreshToken, sessionId);
+
+    sendSuccess({
+      res: resWithCookies,
+      statusCode: HTTP_STATUS.OK,
+      message: 'Access token refreshed successfully',
+      data: { accessToken: newAccessToken },
     });
   }),
 };

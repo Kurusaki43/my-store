@@ -2,7 +2,12 @@ import { AppError } from '@/utils/AppError';
 import { User } from '../user/user.model';
 import type { LoginDTO, RegisterDTO } from './auth.validation';
 import { HTTP_STATUS, SESSION_TTL_DAYS } from '@/constants/httpStatus';
-import { generateRefreshToken, hashRefreshToken, signAccessToken } from '@/utils/jwt';
+import {
+  generateRefreshToken,
+  hashRefreshToken,
+  signAccessToken,
+  verifyRefreshToken,
+} from '@/utils/jwt';
 import { Session } from './auth.model';
 import { expireAfterDays } from '@/utils/helpers';
 import { SESSION_REVOCATION_REASONS } from './auth.types';
@@ -68,5 +73,55 @@ export const AuthService = {
         revokedAt: new Date(),
       },
     );
+  },
+  async refresh(refreshToken: string, sessionId: string) {
+    const session = await Session.findById(sessionId);
+
+    if (!session) {
+      throw new AppError('No session found', HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    if (!session.isValid || session.revokedAt || session.revokedReason) {
+      throw new AppError('Session revoked', HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    if (session.expiresAt < new Date()) {
+      throw new AppError('Session expired', HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const isMatch = verifyRefreshToken(session.refreshTokenHash, refreshToken);
+
+    if (!isMatch) {
+      session.isValid = false;
+      session.revokedAt = new Date();
+      session.revokedReason = SESSION_REVOCATION_REASONS.SECURITY_ISSUE;
+      session.lastUsedAt = new Date();
+
+      await session.save();
+
+      throw new AppError('Refresh token reuse detected', HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const user = await User.findById(session.user);
+
+    if (!user) {
+      throw new AppError('No user attached to this session', HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const newRefreshToken = generateRefreshToken();
+    const newAccessToken = signAccessToken({
+      userId: user._id,
+      sessionId: session._id,
+    });
+
+    session.refreshTokenHash = hashRefreshToken(newRefreshToken);
+    session.lastUsedAt = new Date();
+
+    await session.save();
+
+    return {
+      newAccessToken,
+      newRefreshToken,
+    };
   },
 };

@@ -22,6 +22,11 @@ export const generateRefreshToken = (): string => crypto.randomBytes(64).toStrin
 export const hashRefreshToken = (refreshToken: string): string =>
   crypto.createHash('sha256').update(refreshToken).digest('hex');
 
+export const verifyRefreshToken = (storedHash: string, token: string): boolean => {
+  const hashedToehn = hashRefreshToken(token);
+  return crypto.timingSafeEqual(Buffer.from(storedHash), Buffer.from(hashedToehn));
+};
+
 export const verifyToken = (token: string): Payload | never => {
   try {
     const decoded = jwt.verify(token, env.JWT_SECRET) as Payload;
