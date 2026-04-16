@@ -5,6 +5,7 @@ import { HTTP_STATUS, SESSION_TTL_DAYS } from '@/constants/httpStatus';
 import { generateRefreshToken, hashRefreshToken, signAccessToken } from '@/utils/jwt';
 import { Session } from './auth.model';
 import { expireAfterDays } from '@/utils/helpers';
+import { SESSION_REVOCATION_REASONS } from './auth.types';
 
 export const AuthService = {
   async register(userData: RegisterDTO, ip: string, userAgent: string) {
@@ -57,5 +58,15 @@ export const AuthService = {
     });
 
     return { user, accessToken, refreshToken, sessionId: session._id.toString() };
+  },
+  async logout(sessionId: string) {
+    await Session.updateOne(
+      { _id: sessionId },
+      {
+        isValid: false,
+        revokedReason: SESSION_REVOCATION_REASONS.USER_LOGOUT,
+        revokedAt: new Date(),
+      },
+    );
   },
 };

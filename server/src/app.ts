@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import { env } from '@/config/env';
+import { env } from './config/env';
+import cookieParser from 'cookie-parser';
 import { morganStream } from '@/config/logger';
 import { notFound, globalErrorHandler } from '@/middlewares/errorHandler';
 import { orderRoute } from '@/modules/order/order.route';
@@ -14,6 +15,7 @@ const app = express();
 
 app.use(cors({ origin: env.CLIENT_URL }));
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev', {
     stream: morganStream,

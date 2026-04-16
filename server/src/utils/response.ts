@@ -6,13 +6,13 @@ type HttpStatus = (typeof HTTP_STATUS)[keyof typeof HTTP_STATUS];
 interface SendSuccessParams {
   res: Response;
   statusCode: HttpStatus;
-  msg: string;
+  message: string;
   data?: Record<string, unknown>;
   meta?: Record<string, unknown>;
 }
 
-export const sendSuccess = ({ res, msg, data, statusCode, meta }: SendSuccessParams): void => {
-  res.status(statusCode).json({ success: true, msg, data, ...(meta && { meta }) });
+export const sendSuccess = ({ res, message, data, statusCode, meta }: SendSuccessParams): void => {
+  res.status(statusCode).json({ success: true, message, data, ...(meta && { meta }) });
 };
 
 export const sendFail = (res: Response, message: string, statusCode = 400): void => {
