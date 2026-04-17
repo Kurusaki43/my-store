@@ -1,5 +1,5 @@
-import { createLogger, format, transports, addColors } from "winston";
-import { env } from "@/config/env";
+import { createLogger, format, transports, addColors } from 'winston';
+import { env } from '@/config/env';
 
 const customLevels = {
   levels: {
@@ -10,55 +10,53 @@ const customLevels = {
     debug: 4,
   },
   colors: {
-    error: "bold red",
-    warn: "yellow",
-    info: "green",
-    http: "magenta",
-    debug: "gray",
+    error: 'bold red',
+    warn: 'yellow',
+    info: 'green',
+    http: 'magenta',
+    debug: 'gray',
   },
 };
 
 addColors(customLevels.colors);
 
-const { combine, timestamp, colorize, printf, json, errors, splat } = format;
+const { combine, timestamp, colorize, printf, errors, splat } = format;
 
 const devFormat = combine(
   colorize({ all: true }),
-  timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+  timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   errors({ stack: true }),
   splat(),
   printf(({ level, message, timestamp, stack, ...meta }) => {
-    const stackStr = typeof stack === "string" ? `\n${stack}` : "";
-    const metaStr =
-      Object.keys(meta).length ? `\nmeta: ${JSON.stringify(meta, null, 2)}` : "";
-    return [`[${String(timestamp)}]`, level, String(message), stackStr, metaStr].join(" ");
+    const stackStr = typeof stack === 'string' ? `\n${stack}` : '';
+    const metaStr = Object.keys(meta).length ? `\nmeta: ${JSON.stringify(meta, null, 2)}` : '';
+    return [`[${String(timestamp)}]`, level, String(message), stackStr, metaStr].join(' ');
   }),
 );
 
-const prodFormat = combine(timestamp(), errors(), splat(), json());
+const prodFormat = combine(
+  timestamp(),
+  splat(),
+  printf(({ level, message, timestamp, statusCode, method, url, errorName }) => {
+    return JSON.stringify({ timestamp, level, message, statusCode, method, url, errorName });
+  }),
+);
 
 export const logger = createLogger({
   levels: customLevels.levels,
-  level: env.NODE_ENV === "production" ? env.LOG_LEVEL : "debug",
-  format: env.NODE_ENV === "production" ? prodFormat : devFormat,
+  level: env.NODE_ENV === 'production' ? env.LOG_LEVEL : 'debug',
+  format: env.NODE_ENV === 'production' ? prodFormat : devFormat,
   transports: [
-    new transports.Console(),
-
-    ...(env.NODE_ENV === "production"
+    ...(env.NODE_ENV === 'production'
       ? [
-          new transports.File({
-            filename: "logs/error.log",
-            level: "error",
-          }),
-          new transports.File({
-            filename: "logs/combined.log",
-          }),
+          new transports.File({ filename: 'logs/error.log', level: 'error' }),
+          new transports.File({ filename: 'logs/combined.log' }),
         ]
-      : []),
+      : [new transports.Console()]),
   ],
 
-  exceptionHandlers: [new transports.File({ filename: "logs/exceptions.log" })],
-  rejectionHandlers: [new transports.File({ filename: "logs/rejections.log" })],
+  exceptionHandlers: [new transports.File({ filename: 'logs/exceptions.log' })],
+  rejectionHandlers: [new transports.File({ filename: 'logs/rejections.log' })],
 });
 
 export const morganStream = {

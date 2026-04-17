@@ -93,8 +93,12 @@ export const globalErrorHandler = (
 ): void => {
   const { statusCode, message } = normalizeError(err);
 
-  logger.error(`[${req.method}] ${req.originalUrl} — ${message}`, {
-    stack: err instanceof Error ? err.stack : undefined,
+  logger.error(message, {
+    statusCode,
+    method: req.method,
+    url: req.originalUrl,
+    errorName: err instanceof Error ? err.name : undefined,
+    ...(env.NODE_ENV === 'development' && { stack: err instanceof Error ? err.stack : undefined }),
   });
 
   if (env.NODE_ENV === 'development') {
