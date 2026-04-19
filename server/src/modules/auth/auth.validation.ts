@@ -3,7 +3,8 @@ import z from 'zod';
 const emailSchema = z.email('Please provide a valid email');
 const passwordSchema = z
   .string({ error: 'Password is required' })
-  .min(8, 'Password must be at least 8 characters long');
+  .min(8, 'Password must be at least 8 characters long')
+  .max(32, 'Password must be at most 32 characters long');
 
 export const registerSchema = z.object({
   email: emailSchema,
@@ -33,7 +34,8 @@ export const resetPasswordSchema = z
 export const resetPasswordParamsSchema = z.object({
   token: z
     .string({ error: 'Token is required' })
-    .min(32, 'Token is required and must be 32 characters long'),
+    .min(32, 'Token is required and must be 32 characters long')
+    .max(32, 'Token is required and must be 32 characters long'),
 });
 export type ResetPasswordDTO = z.infer<typeof resetPasswordSchema>;
 export type ResetPasswordParamsDTO = z.infer<typeof resetPasswordParamsSchema>;

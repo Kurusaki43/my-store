@@ -9,8 +9,8 @@ import {
   verifyRefreshToken,
 } from '@/utils/jwt';
 import { Session, VerificationCode } from './auth.model';
-import { expireAfterDays, generateCode, hashCode } from '@/utils/helpers';
-import { SESSION_REVOCATION_REASONS } from './auth.types';
+import { expireAfterDays, expireAfterHours, generateCode, hashCode } from '@/utils/helpers';
+import { SESSION_REVOCATION_REASONS, VERIFICATION_CODE_TYPES } from './auth.types';
 import { emailQueue } from '@/jobs/email/email.queue';
 import { env } from '@/config/env';
 
@@ -21,7 +21,11 @@ export const AuthService = {
       throw new AppError('User with this email already exists', HTTP_STATUS.CONFLICT);
     }
 
-    const user = await User.create(userData);
+    const user = await User.create({
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+    });
 
     const refreshToken = generateRefreshToken();
     const session = await Session.create({
@@ -59,7 +63,7 @@ export const AuthService = {
       refreshTokenHash: hashRefreshToken(refreshToken),
       ip,
       userAgent,
-      expiresAt: expireAfterDays(7),
+      expiresAt: expireAfterDays(SESSION_TTL_DAYS),
     });
     const accessToken = signAccessToken({
       userId: user._id,
@@ -133,20 +137,24 @@ export const AuthService = {
   async forgotPassword(email: string) {
     const user = await User.findOne({ email });
     if (!user) {
-      throw new AppError('User related to this email no longer existed.', HTTP_STATUS.NOT_FOUND);
+      return;
     }
 
-    const code = await VerificationCode.findOne({ user: user._id });
+    const code = await VerificationCode.findOne({
+      user: user._id,
+      type: VERIFICATION_CODE_TYPES.PASSWORD_RESET,
+    });
     if (code && code.expiresAt > new Date()) {
-      throw new AppError('You already have a code, verify your email inbox.', HTTP_STATUS.CONFLICT);
+      throw new AppError('Too many requests', HTTP_STATUS.TOO_MANY_REQUESTS);
     }
 
+    await code?.deleteOne();
     const token = generateCode();
     await VerificationCode.create({
       user: user._id,
       code: hashCode(token),
-      type: 'passwordReset',
-      expiresAt: new Date(new Date().getTime() + 60 * 60 * 1000),
+      type: VERIFICATION_CODE_TYPES.PASSWORD_RESET,
+      expiresAt: expireAfterHours(1),
     });
     const resetLink = `${env.CLIENT_URL}/auth/reset-password/${token}`;
 
@@ -158,7 +166,11 @@ export const AuthService = {
     });
   },
   async resetPassword(token: string, newPassword: string) {
-    const resetCode = await VerificationCode.findOne({ code: hashCode(token) });
+    const resetCode = await VerificationCode.findOne({
+      code: hashCode(token),
+      type: VERIFICATION_CODE_TYPES.PASSWORD_RESET,
+      expiresAt: { $gt: new Date() },
+    });
     if (!resetCode) {
       throw new AppError('Invalid or expired code', HTTP_STATUS.NOT_FOUND);
     }
@@ -181,14 +193,37 @@ export const AuthService = {
       },
     );
   },
-  async getSessions(userId: string | undefined) {
-    const sessions = await Session.find({ user: userId });
+  async getSessions(userId: string) {
+    const sessions = await Session.find({
+      user: userId,
+      isValid: true,
+      expiresAt: { $gt: new Date() },
+    });
     return sessions;
   },
-  async deleteAllSessions(userId: string | undefined) {
-    await Session.deleteMany({ user: userId });
+  async deleteAllSessions(userId: string) {
+    await Session.updateMany(
+      { user: userId, isValid: true },
+      {
+        isValid: false,
+        revokedAt: new Date(),
+        revokedReason: SESSION_REVOCATION_REASONS.USER_LOGOUT,
+        lastUsedAt: new Date(),
+      },
+    );
   },
-  async deleteSession(sessionId: string) {
-    await Session.findByIdAndDelete(sessionId);
+  async deleteSession(sessionId: string, userId: string) {
+    const session = await Session.findOneAndUpdate(
+      { _id: sessionId, user: userId },
+      {
+        isValid: false,
+        revokedAt: new Date(),
+        revokedReason: SESSION_REVOCATION_REASONS.USER_LOGOUT,
+        lastUsedAt: new Date(),
+      },
+    );
+    if (!session) {
+      throw new AppError('Session not found', HTTP_STATUS.NOT_FOUND);
+    }
   },
 };

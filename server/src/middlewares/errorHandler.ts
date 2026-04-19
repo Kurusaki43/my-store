@@ -5,6 +5,7 @@ import { AppError } from '@/utils/AppError';
 import { logger } from '@/config/logger';
 import { env } from '@/config/env';
 import { HTTP_STATUS } from '@/constants/httpStatus';
+import { sendFail } from '@/utils/response';
 
 interface NormalizedError {
   statusCode: number;
@@ -111,6 +112,5 @@ export const globalErrorHandler = (
     });
     return;
   }
-
-  res.status(statusCode).json({ success: false, message });
+  sendFail(res, message, statusCode);
 };

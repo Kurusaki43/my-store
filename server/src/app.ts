@@ -13,8 +13,8 @@ import { paymentRoute } from '@/modules/payment/payment.route';
 
 const app = express();
 
-app.use(cors({ origin: env.CLIENT_URL }));
-app.use(express.json());
+app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
+app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());
 app.use(
   morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev', {

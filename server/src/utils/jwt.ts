@@ -24,8 +24,8 @@ export const hashRefreshToken = (refreshToken: string): string =>
   crypto.createHash('sha256').update(refreshToken).digest('hex');
 
 export const verifyRefreshToken = (storedHash: string, token: string): boolean => {
-  const hashedToehn = hashRefreshToken(token);
-  return crypto.timingSafeEqual(Buffer.from(storedHash), Buffer.from(hashedToehn));
+  const hashedToken = hashRefreshToken(token);
+  return crypto.timingSafeEqual(Buffer.from(storedHash), Buffer.from(hashedToken));
 };
 
 export const verifyToken = (token: string): Payload | never => {

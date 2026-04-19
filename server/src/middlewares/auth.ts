@@ -1,6 +1,5 @@
 import { HTTP_STATUS } from '@/constants/httpStatus';
 import { Session } from '@/modules/auth/auth.model';
-import { User } from '@/modules/user/user.model';
 import { AppError } from '@/utils/AppError';
 import { verifyToken } from '@/utils/jwt';
 import { type RequestHandler } from 'express';
@@ -13,13 +12,10 @@ export const protect: RequestHandler = async (req, _res, next) => {
   }
 
   const { userId, sessionId, role } = verifyToken(token);
-  const user = await User.findById(userId);
-  if (!user?.isActive) {
-    throw new AppError('Unauthorized, user is inactive', HTTP_STATUS.UNAUTHORIZED);
-  }
+
   const session = await Session.findById(sessionId);
-  if (!session?.isValid) {
-    throw new AppError('Unauthorized, session is invalid', HTTP_STATUS.UNAUTHORIZED);
+  if (!session?.isValid || session.expiresAt < new Date()) {
+    throw new AppError('Unauthorized, session is invalid or expired', HTTP_STATUS.UNAUTHORIZED);
   }
 
   req.userId = userId.toString();

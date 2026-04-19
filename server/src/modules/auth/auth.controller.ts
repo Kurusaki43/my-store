@@ -97,7 +97,7 @@ export const AuthController: Record<string, RequestHandler> = {
   forgotPassword: async (req, res) => {
     const { email } = req.body as ForgotPasswordDTO;
     await AuthService.forgotPassword(email);
-    sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Email was sended successfully' });
+    sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Email sent successfully' });
   },
 
   resetPassword: async (req, res) => {
@@ -108,15 +108,12 @@ export const AuthController: Record<string, RequestHandler> = {
   },
 
   getSessions: async (req, res) => {
-    const userId = req.userId;
-    const sessions = await AuthService.getSessions(userId);
-
+    const sessions = await AuthService.getSessions(req.userId!);
     sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Sessions found', data: { sessions } });
   },
 
   deleteAllSessions: async (req, res) => {
-    const userId = req.userId;
-    await AuthService.deleteAllSessions(userId);
+    await AuthService.deleteAllSessions(req.userId!);
     clearCookies(res);
     sendSuccess({
       res,
@@ -126,8 +123,7 @@ export const AuthController: Record<string, RequestHandler> = {
   },
 
   deleteSession: async (req, res) => {
-    const sessionId = req.params.sessionId as string;
-    await AuthService.deleteSession(sessionId);
+    await AuthService.deleteSession(req.params.sessionId as string, req.userId!);
     sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Session deleted successfully' });
   },
 };
