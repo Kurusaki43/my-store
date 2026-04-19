@@ -8,6 +8,7 @@ import {
   resetPasswordParamsSchema,
   resetPasswordSchema,
 } from './auth.validation';
+import { protect } from '@/middlewares/auth';
 
 export const authRoute = Router();
 
@@ -28,3 +29,10 @@ authRoute.patch(
   }),
   AuthController.resetPassword,
 );
+
+authRoute
+  .route('/sessions')
+  .get(protect, AuthController.getSessions)
+  .delete(protect, AuthController.deleteAllSessions);
+
+authRoute.delete('/sessions/:sessionId', protect, AuthController.deleteSession);

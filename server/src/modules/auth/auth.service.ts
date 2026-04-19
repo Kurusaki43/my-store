@@ -181,4 +181,14 @@ export const AuthService = {
       },
     );
   },
+  async getSessions(userId: string | undefined) {
+    const sessions = await Session.find({ user: userId });
+    return sessions;
+  },
+  async deleteAllSessions(userId: string | undefined) {
+    await Session.deleteMany({ user: userId });
+  },
+  async deleteSession(sessionId: string) {
+    await Session.findByIdAndDelete(sessionId);
+  },
 };

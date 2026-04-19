@@ -1,3 +1,4 @@
+import { type RequestHandler } from 'express';
 import { extractDeviceInfo } from '@/utils/helpers';
 import type {
   ForgotPasswordDTO,
@@ -17,10 +18,9 @@ import {
 import { sendSuccess } from '@/utils/response';
 import { HTTP_STATUS } from '@/constants/httpStatus';
 import { AppError } from '@/utils/AppError';
-import { type Request, type Response } from 'express';
 
-export const AuthController = {
-  register: async (req: Request, res: Response) => {
+export const AuthController: Record<string, RequestHandler> = {
+  register: async (req, res) => {
     const userData = req.body as RegisterDTO;
 
     const { ip, userAgent } = extractDeviceInfo(req);
@@ -41,7 +41,7 @@ export const AuthController = {
     });
   },
 
-  login: async (req: Request, res: Response) => {
+  login: async (req, res) => {
     const loginData = req.body as LoginDTO;
 
     const { ip, userAgent } = extractDeviceInfo(req);
@@ -62,7 +62,7 @@ export const AuthController = {
     });
   },
 
-  logout: async (req: Request, res: Response) => {
+  logout: async (req, res) => {
     const sessionId = getCookie(req, SESSION_ID_COOKIE_NAME);
     if (!sessionId) {
       throw new AppError('No active session found', HTTP_STATUS.BAD_REQUEST);
@@ -76,7 +76,7 @@ export const AuthController = {
     });
   },
 
-  refresh: async (req: Request, res: Response) => {
+  refresh: async (req, res) => {
     const sessionId = getCookie(req, SESSION_ID_COOKIE_NAME);
     const refreshToken = getCookie(req, REFRESH_TOKEN_COOKIE_NAME);
     if (!sessionId || !refreshToken) {
@@ -94,16 +94,40 @@ export const AuthController = {
     });
   },
 
-  forgotPassword: async (req: Request, res: Response) => {
+  forgotPassword: async (req, res) => {
     const { email } = req.body as ForgotPasswordDTO;
     await AuthService.forgotPassword(email);
     sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Email was sended successfully' });
   },
 
-  resetPassword: async (req: Request, res: Response) => {
+  resetPassword: async (req, res) => {
     const { token } = req.params as ResetPasswordParamsDTO;
     const { newPassword } = req.body as ResetPasswordDTO;
     await AuthService.resetPassword(token, newPassword);
     sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Password was reset successfully' });
+  },
+
+  getSessions: async (req, res) => {
+    const userId = req.userId;
+    const sessions = await AuthService.getSessions(userId);
+
+    sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Sessions found', data: { sessions } });
+  },
+
+  deleteAllSessions: async (req, res) => {
+    const userId = req.userId;
+    await AuthService.deleteAllSessions(userId);
+    clearCookies(res);
+    sendSuccess({
+      res,
+      statusCode: HTTP_STATUS.OK,
+      message: 'All sessions deleted successfully',
+    });
+  },
+
+  deleteSession: async (req, res) => {
+    const sessionId = req.params.sessionId as string;
+    await AuthService.deleteSession(sessionId);
+    sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Session deleted successfully' });
   },
 };
