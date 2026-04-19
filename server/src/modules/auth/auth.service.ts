@@ -35,6 +35,7 @@ export const AuthService = {
     const accessToken = signAccessToken({
       userId: user._id,
       sessionId: session._id,
+      role: user.role,
     });
 
     await emailQueue.add('welcome', { type: 'welcome', to: user.email, name: user.name });
@@ -63,6 +64,7 @@ export const AuthService = {
     const accessToken = signAccessToken({
       userId: user._id,
       sessionId: session._id,
+      role: user.role,
     });
 
     return { user, accessToken, refreshToken, sessionId: session._id.toString() };
@@ -115,6 +117,7 @@ export const AuthService = {
     const newAccessToken = signAccessToken({
       userId: user._id,
       sessionId: session._id,
+      role: user.role,
     });
 
     session.refreshTokenHash = hashRefreshToken(newRefreshToken);

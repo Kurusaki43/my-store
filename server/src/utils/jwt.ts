@@ -13,6 +13,7 @@ export const ACCESS_TOKEN_EXPIRATION = '15m';
 export interface Payload extends JwtPayload {
   userId: IUser['_id'];
   sessionId: ISession['_id'];
+  role: IUser['role'];
 }
 export const signAccessToken = (payload: Payload): string =>
   jwt.sign(payload, env.JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRATION });
