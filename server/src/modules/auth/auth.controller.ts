@@ -1,6 +1,6 @@
 import { asyncHandler } from '@/utils/asyncHandler';
 import { extractDeviceInfo } from '@/utils/helpers';
-import type { LoginDTO, RegisterDTO } from './auth.validation';
+import type { ForgotPasswordDTO, LoginDTO, RegisterDTO } from './auth.validation';
 import { AuthService } from './auth.service';
 import {
   clearCookies,
@@ -34,6 +34,7 @@ export const AuthController = {
       data: { user, accessToken },
     });
   }),
+
   login: asyncHandler(async (req, res) => {
     const loginData = req.body as LoginDTO;
 
@@ -54,6 +55,7 @@ export const AuthController = {
       data: { user, accessToken },
     });
   }),
+
   logout: asyncHandler(async (req, res) => {
     const sessionId = getCookie(req, SESSION_ID_COOKIE_NAME);
     if (!sessionId) {
@@ -67,6 +69,7 @@ export const AuthController = {
       message: 'Logout successful',
     });
   }),
+
   refresh: asyncHandler(async (req, res) => {
     const sessionId = getCookie(req, SESSION_ID_COOKIE_NAME);
     const refreshToken = getCookie(req, REFRESH_TOKEN_COOKIE_NAME);
@@ -83,5 +86,11 @@ export const AuthController = {
       message: 'Access token refreshed successfully',
       data: { accessToken: newAccessToken },
     });
+  }),
+
+  forgotPassword: asyncHandler(async (req, res) => {
+    const { email } = req.body as ForgotPasswordDTO;
+    await AuthService.forgotPassword(email);
+    sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Email was sended successfully' });
   }),
 };

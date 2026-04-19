@@ -8,8 +8,8 @@ import {
   signAccessToken,
   verifyRefreshToken,
 } from '@/utils/jwt';
-import { Session } from './auth.model';
-import { expireAfterDays } from '@/utils/helpers';
+import { Session, VerificationCode } from './auth.model';
+import { expireAfterDays, generateCode, hashCode } from '@/utils/helpers';
 import { SESSION_REVOCATION_REASONS } from './auth.types';
 import { emailQueue } from '@/jobs/email/email.queue';
 
@@ -125,5 +125,32 @@ export const AuthService = {
       newAccessToken,
       newRefreshToken,
     };
+  },
+  async forgotPassword(email: string) {
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new AppError('User related to this email no longer existed.', HTTP_STATUS.NOT_FOUND);
+    }
+
+    const code = await VerificationCode.findOne({ user: user._id });
+    if (code && code.expiresAt > new Date()) {
+      throw new AppError('You already have a code, verify your email inbox.', HTTP_STATUS.CONFLICT);
+    }
+
+    const token = generateCode();
+    await VerificationCode.create({
+      user: user._id,
+      code: hashCode(token),
+      type: 'passwordReset',
+      expiresAt: new Date(new Date().getTime() + 60 * 60 * 1000),
+    });
+    const resetLink = `https://localhost/api/v1/auth/reset-password/${token}`;
+
+    await emailQueue.add('reset-password', {
+      type: 'password-reset',
+      name: user.name,
+      to: user.email,
+      resetLink,
+    });
   },
 };
