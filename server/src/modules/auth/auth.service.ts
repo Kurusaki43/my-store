@@ -12,6 +12,7 @@ import { Session, VerificationCode } from './auth.model';
 import { expireAfterDays, generateCode, hashCode } from '@/utils/helpers';
 import { SESSION_REVOCATION_REASONS } from './auth.types';
 import { emailQueue } from '@/jobs/email/email.queue';
+import { env } from '@/config/env';
 
 export const AuthService = {
   async register(userData: RegisterDTO, ip: string, userAgent: string) {
@@ -144,7 +145,7 @@ export const AuthService = {
       type: 'passwordReset',
       expiresAt: new Date(new Date().getTime() + 60 * 60 * 1000),
     });
-    const resetLink = `https://localhost/api/v1/auth/reset-password/${token}`;
+    const resetLink = `${env.CLIENT_URL}/auth/reset-password/${token}`;
 
     await emailQueue.add('reset-password', {
       type: 'password-reset',
@@ -152,5 +153,29 @@ export const AuthService = {
       to: user.email,
       resetLink,
     });
+  },
+  async resetPassword(token: string, newPassword: string) {
+    const resetCode = await VerificationCode.findOne({ code: hashCode(token) });
+    if (!resetCode) {
+      throw new AppError('Invalid or expired code', HTTP_STATUS.NOT_FOUND);
+    }
+
+    const user = await User.findById(resetCode.user);
+    if (!user) {
+      throw new AppError('User no longer exists', HTTP_STATUS.NOT_FOUND);
+    }
+
+    user.password = newPassword;
+    await user.save();
+    await VerificationCode.findByIdAndDelete(resetCode._id);
+    await Session.updateMany(
+      { user: user._id },
+      {
+        isValid: false,
+        revokedReason: SESSION_REVOCATION_REASONS.PASSWORD_CHANGE,
+        revokedAt: new Date(),
+        lastUsedAt: new Date(),
+      },
+    );
   },
 };

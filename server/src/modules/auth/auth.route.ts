@@ -1,7 +1,13 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
 import { validate } from '@/middlewares/validation';
-import { forgotPasswordSchema, loginSchema, registerSchema } from './auth.validation';
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordParamsSchema,
+  resetPasswordSchema,
+} from './auth.validation';
 
 export const authRoute = Router();
 
@@ -13,4 +19,12 @@ authRoute.post(
   '/forgot-password',
   validate({ body: forgotPasswordSchema }),
   AuthController.forgotPassword,
+);
+authRoute.patch(
+  '/reset-password/:token',
+  validate({
+    params: resetPasswordParamsSchema,
+    body: resetPasswordSchema,
+  }),
+  AuthController.resetPassword,
 );

@@ -1,6 +1,12 @@
 import { asyncHandler } from '@/utils/asyncHandler';
 import { extractDeviceInfo } from '@/utils/helpers';
-import type { ForgotPasswordDTO, LoginDTO, RegisterDTO } from './auth.validation';
+import type {
+  ForgotPasswordDTO,
+  LoginDTO,
+  RegisterDTO,
+  ResetPasswordDTO,
+  ResetPasswordParamsDTO,
+} from './auth.validation';
 import { AuthService } from './auth.service';
 import {
   clearCookies,
@@ -92,5 +98,12 @@ export const AuthController = {
     const { email } = req.body as ForgotPasswordDTO;
     await AuthService.forgotPassword(email);
     sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Email was sended successfully' });
+  }),
+
+  resetPassword: asyncHandler(async (req, res) => {
+    const { token } = req.params as ResetPasswordParamsDTO;
+    const { newPassword } = req.body as ResetPasswordDTO;
+    await AuthService.resetPassword(token, newPassword);
+    sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Password was reset successfully' });
   }),
 };

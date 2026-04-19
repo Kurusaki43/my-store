@@ -16,7 +16,7 @@ export const expireAfterDays = (days: number): Date => {
   return new Date(now.getTime() + days * 24 * 60 * 60 * 1000);
 };
 
-export const generateCode = (): string => crypto.randomBytes(20).toString('hex');
+export const generateCode = (): string => crypto.randomBytes(16).toString('hex');
 
 export const hashCode = (val: string): string =>
   crypto.createHash('sha256').update(val).digest('hex');

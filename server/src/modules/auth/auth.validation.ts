@@ -20,6 +20,24 @@ export const forgotPasswordSchema = z.object({
   email: emailSchema,
 });
 
+export const resetPasswordSchema = z
+  .object({
+    newPassword: passwordSchema,
+    confirmPassword: passwordSchema,
+  })
+  .refine((data) => data.confirmPassword === data.newPassword, {
+    path: ['confirmPassword'],
+    error: "Passwords don't match",
+  });
+
+export const resetPasswordParamsSchema = z.object({
+  token: z
+    .string({ error: 'Token is required' })
+    .min(32, 'Token is required and must be 32 characters long'),
+});
+export type ResetPasswordDTO = z.infer<typeof resetPasswordSchema>;
+export type ResetPasswordParamsDTO = z.infer<typeof resetPasswordParamsSchema>;
+
 export type LoginDTO = z.infer<typeof loginSchema>;
 export type RegisterDTO = z.infer<typeof registerSchema>;
 export type ForgotPasswordDTO = z.infer<typeof forgotPasswordSchema>;
