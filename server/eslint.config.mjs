@@ -13,13 +13,14 @@ export default tseslint.config(
   {
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        project: ['./tsconfig.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },
     plugins: { n: pluginN },
     rules: {
       // — TypeScript —
+      '@typescript-eslint/consistent-type-definitions': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': ['warn', { allowExpressions: true }],
       '@typescript-eslint/no-unused-vars': [

@@ -11,6 +11,7 @@ import {
 import { Session } from './auth.model';
 import { expireAfterDays } from '@/utils/helpers';
 import { SESSION_REVOCATION_REASONS } from './auth.types';
+import { emailQueue } from '@/jobs/email/email.queue';
 
 export const AuthService = {
   async register(userData: RegisterDTO, ip: string, userAgent: string) {
@@ -35,6 +36,7 @@ export const AuthService = {
       sessionId: session._id,
     });
 
+    await emailQueue.add('welcome', { type: 'welcome', to: user.email, name: user.name });
     return { user, accessToken, refreshToken, sessionId: session._id.toString() };
   },
 

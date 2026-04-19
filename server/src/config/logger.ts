@@ -37,8 +37,17 @@ const devFormat = combine(
 const prodFormat = combine(
   timestamp(),
   splat(),
-  printf(({ level, message, timestamp, statusCode, method, url, errorName }) => {
-    return JSON.stringify({ timestamp, level, message, statusCode, method, url, errorName });
+  printf(({ level, message, timestamp, statusCode, method, url, errorName, ...meta }) => {
+    return JSON.stringify({
+      timestamp,
+      level,
+      message,
+      statusCode,
+      method,
+      url,
+      errorName,
+      ...meta,
+    });
   }),
 );
 
