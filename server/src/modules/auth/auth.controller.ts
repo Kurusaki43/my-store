@@ -1,4 +1,3 @@
-import { asyncHandler } from '@/utils/asyncHandler';
 import { extractDeviceInfo } from '@/utils/helpers';
 import type {
   ForgotPasswordDTO,
@@ -18,9 +17,10 @@ import {
 import { sendSuccess } from '@/utils/response';
 import { HTTP_STATUS } from '@/constants/httpStatus';
 import { AppError } from '@/utils/AppError';
+import { type Request, type Response } from 'express';
 
 export const AuthController = {
-  register: asyncHandler(async (req, res) => {
+  register: async (req: Request, res: Response) => {
     const userData = req.body as RegisterDTO;
 
     const { ip, userAgent } = extractDeviceInfo(req);
@@ -39,9 +39,9 @@ export const AuthController = {
       message: 'Registration successful',
       data: { user, accessToken },
     });
-  }),
+  },
 
-  login: asyncHandler(async (req, res) => {
+  login: async (req: Request, res: Response) => {
     const loginData = req.body as LoginDTO;
 
     const { ip, userAgent } = extractDeviceInfo(req);
@@ -60,9 +60,9 @@ export const AuthController = {
       message: 'Login successful',
       data: { user, accessToken },
     });
-  }),
+  },
 
-  logout: asyncHandler(async (req, res) => {
+  logout: async (req: Request, res: Response) => {
     const sessionId = getCookie(req, SESSION_ID_COOKIE_NAME);
     if (!sessionId) {
       throw new AppError('No active session found', HTTP_STATUS.BAD_REQUEST);
@@ -74,9 +74,9 @@ export const AuthController = {
       statusCode: HTTP_STATUS.OK,
       message: 'Logout successful',
     });
-  }),
+  },
 
-  refresh: asyncHandler(async (req, res) => {
+  refresh: async (req: Request, res: Response) => {
     const sessionId = getCookie(req, SESSION_ID_COOKIE_NAME);
     const refreshToken = getCookie(req, REFRESH_TOKEN_COOKIE_NAME);
     if (!sessionId || !refreshToken) {
@@ -92,18 +92,18 @@ export const AuthController = {
       message: 'Access token refreshed successfully',
       data: { accessToken: newAccessToken },
     });
-  }),
+  },
 
-  forgotPassword: asyncHandler(async (req, res) => {
+  forgotPassword: async (req: Request, res: Response) => {
     const { email } = req.body as ForgotPasswordDTO;
     await AuthService.forgotPassword(email);
     sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Email was sended successfully' });
-  }),
+  },
 
-  resetPassword: asyncHandler(async (req, res) => {
+  resetPassword: async (req: Request, res: Response) => {
     const { token } = req.params as ResetPasswordParamsDTO;
     const { newPassword } = req.body as ResetPasswordDTO;
     await AuthService.resetPassword(token, newPassword);
     sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Password was reset successfully' });
-  }),
+  },
 };
