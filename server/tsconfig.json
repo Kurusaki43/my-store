@@ -1,7 +1,5 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
-
     "rootDir": "./src",
     "outDir": "./dist",
 
@@ -11,10 +9,9 @@
     "lib": ["es2020", "dom"],
     "jsx": "react-jsx",
 
-    // Path aliases
-    "baseUrl": ".",
+    // Path aliases (paths relative to this file; baseUrl removed — deprecated in TS 6)
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
 
     // Outputs

@@ -13,7 +13,8 @@ export const protect: RequestHandler = async (req, _res, next) => {
 
   const { userId, sessionId, role } = verifyToken(token);
 
-  const session = await Session.findById(sessionId);
+  const session = await Session.findOne({ _id: sessionId, user: userId });
+
   if (!session?.isValid || session.expiresAt < new Date()) {
     throw new AppError('Unauthorized, session is invalid or expired', HTTP_STATUS.UNAUTHORIZED);
   }
