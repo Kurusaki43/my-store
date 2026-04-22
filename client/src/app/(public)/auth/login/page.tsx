@@ -13,6 +13,7 @@ import { IoMailSharp } from 'react-icons/io5';
 import { IoLogInOutline } from 'react-icons/io5';
 import { LoginInput, loginSchema } from '@/features/auth/shemas';
 import LoadingButton from '@/components/ui/LoadingButton';
+import { useLogin } from '@/features/auth/hook';
 
 const LoginPage = () => {
   const form = useForm<LoginInput>({
@@ -22,9 +23,11 @@ const LoginPage = () => {
       password: '',
     },
   });
+  const { mutate, isPending, error } = useLogin();
+
   const onSubmit = async (data: LoginInput) => {
-    console.log(data);
-    form.reset();
+    mutate(data);
+    if (!error) form.reset();
   };
   return (
     <Card className="max-w-sm w-full">
@@ -54,7 +57,12 @@ const LoginPage = () => {
 
             {/* Submit */}
             <Field>
-              <LoadingButton label="Login" type="submit" Icon={IoLogInOutline}>
+              <LoadingButton
+                label="Login"
+                type="submit"
+                Icon={IoLogInOutline}
+                isLoading={isPending}
+              >
                 Login
               </LoadingButton>
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card my-3">
