@@ -3,6 +3,7 @@ import { useAuthStore } from './store';
 import { loginRequest } from './api';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { getErrorMessage } from '@/lib/getErrorMessage';
 
 export const useLogin = () => {
   const router = useRouter();
@@ -14,6 +15,10 @@ export const useLogin = () => {
       setAuth({ accessToken, user });
       toast.success(`Welcome, ${user.name} 👋`);
       router.push('/');
+    },
+    onError: (error) => {
+      const message = getErrorMessage(error);
+      toast.error(message);
     },
   });
 };

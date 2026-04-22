@@ -1,11 +1,13 @@
 import { Inter } from 'next/font/google';
+import { Toaster } from 'react-hot-toast';
 import type { Metadata } from 'next';
 import './globals.css';
+import QueryProvider from '@/components/providers/QueryProvider';
 
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'], // choose what you need
-  variable: '--font-inter', // optional (for Tailwind)
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
@@ -20,7 +22,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.className} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <QueryProvider>
+          {children}
+          <Toaster position="top-right" toastOptions={{ duration: 5000 }} />
+        </QueryProvider>
+      </body>
     </html>
   );
 }

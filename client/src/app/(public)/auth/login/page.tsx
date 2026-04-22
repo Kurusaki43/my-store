@@ -11,7 +11,7 @@ import RHFInput from '@/components/ui/RHF/RHFInput';
 import { FaLock } from 'react-icons/fa';
 import { IoMailSharp } from 'react-icons/io5';
 import { IoLogInOutline } from 'react-icons/io5';
-import { LoginInput, loginSchema } from '@/features/auth/shemas';
+import { LoginInput, loginSchema } from '@/features/auth/schemas';
 import LoadingButton from '@/components/ui/LoadingButton';
 import { useLogin } from '@/features/auth/hook';
 
@@ -25,7 +25,7 @@ const LoginPage = () => {
   });
   const { mutate, isPending, error } = useLogin();
 
-  const onSubmit = async (data: LoginInput) => {
+  const onSubmit = (data: LoginInput) => {
     mutate(data);
     if (!error) form.reset();
   };
@@ -54,17 +54,14 @@ const LoginPage = () => {
               type="password"
               Icon={FaLock}
             />
-
-            {/* Submit */}
             <Field>
               <LoadingButton
                 label="Login"
                 type="submit"
                 Icon={IoLogInOutline}
                 isLoading={isPending}
-              >
-                Login
-              </LoadingButton>
+              />
+
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card my-3">
                 Or continue with
               </FieldSeparator>
