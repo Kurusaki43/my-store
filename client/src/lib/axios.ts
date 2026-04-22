@@ -1,5 +1,5 @@
-import axios from "axios";
-import { tokenStore } from "@/lib/tokenStore";
+import axios from 'axios';
+import { tokenStore } from '@/lib/tokenStore';
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -44,7 +44,7 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const { data } = await api.post("/auth/refresh");
+      const { data } = await api.post('/auth/refresh');
       tokenStore.set(data.accessToken);
       processQueue(data.accessToken);
       original.headers.Authorization = `Bearer ${data.accessToken}`;
