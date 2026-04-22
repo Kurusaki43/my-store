@@ -97,7 +97,11 @@ export const AuthController: Record<string, RequestHandler> = {
   forgotPassword: async (req, res) => {
     const { email } = req.body as ForgotPasswordDTO;
     await AuthService.forgotPassword(email);
-    sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Email sent successfully' });
+    sendSuccess({
+      res,
+      statusCode: HTTP_STATUS.OK,
+      message: 'If an account exists, you’ll receive an email shortly',
+    });
   },
 
   resetPassword: async (req, res) => {
