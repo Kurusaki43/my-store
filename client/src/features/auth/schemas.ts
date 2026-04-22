@@ -1,4 +1,4 @@
-import z, { email } from 'zod';
+import z from 'zod';
 
 const emailSchema = z.email('Please enter a valid email');
 const passwordSchema = z
@@ -16,7 +16,7 @@ export type LoginInput = z.infer<typeof loginSchema>;
 
 export const registerSchema = z
   .object({
-    name: z.string().min(4, 'Name should be abouve 4 characters'),
+    name: z.string().min(4, 'Name should be above 4 characters'),
     email: emailSchema,
     password: passwordSchema,
     confirmPassword: passwordSchema,

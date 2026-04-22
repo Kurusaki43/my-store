@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from './store';
-import { loginRequest, registerRequest } from './api';
+import { forgotPasswordRequest, loginRequest, registerRequest } from './api';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { getErrorMessage } from '@/lib/getErrorMessage';
@@ -36,6 +36,23 @@ export const useRegister = () => {
     },
     onError: (error) => {
       const message = getErrorMessage(error);
+      toast.error(message);
+    },
+  });
+};
+
+export const useForgotPassword = () => {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: forgotPasswordRequest,
+    onSuccess: (res) => {
+      toast.success(res.message);
+      router.push('/');
+    },
+
+    onError: (err) => {
+      const message = getErrorMessage(err);
       toast.error(message);
     },
   });

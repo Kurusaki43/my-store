@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Form } from '@/components/ui/form';
 import LoadingButton from '@/components/ui/LoadingButton';
 import RHFInput from '@/components/ui/RHF/RHFInput';
+import { useForgotPassword } from '@/features/auth/hook';
 import { ForgotPasswordInput, forgotPasswordSchema } from '@/features/auth/schemas';
-import { ForgotPasswordDTO } from '@/features/auth/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -18,9 +18,9 @@ const ForgotPassword = () => {
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: { email: '' },
   });
-
-  const onSubmit = (data: ForgotPasswordDTO) => {
-    console.log(data);
+  const { mutate, isPending } = useForgotPassword();
+  const onSubmit = (data: ForgotPasswordInput) => {
+    mutate(data);
   };
   return (
     <Card className="max-w-sm w-full">
@@ -43,13 +43,13 @@ const ForgotPassword = () => {
             />
 
             <div className="flex justify-between">
-              <Button variant={'outline'} className="cursor-pointer" type="button">
+              <Button variant={'outline'} className="cursor-pointer" type="button" asChild>
                 <Link href="login">Cancel</Link>
               </Button>
               <LoadingButton
                 label="Reset password"
                 type="submit"
-                isLoading={false}
+                isLoading={isPending}
                 Icon={RiResetLeftLine}
               />
             </div>
