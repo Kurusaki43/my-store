@@ -7,3 +7,5 @@ interface LoginResponseData {
 }
 
 export type LoginResponse = ApiResponse<LoginResponseData>;
+
+export type RegisterResponse = ApiResponse<LoginResponseData>;
