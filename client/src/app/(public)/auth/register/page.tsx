@@ -13,6 +13,7 @@ import { useForm } from 'react-hook-form';
 import { FaLock } from 'react-icons/fa';
 import { IoLogInOutline, IoMailSharp } from 'react-icons/io5';
 import { FaUser } from 'react-icons/fa';
+import { useRegister } from '@/features/auth/hook';
 
 const RegisterPage = () => {
   const form = useForm<RegisterInput>({
@@ -24,8 +25,10 @@ const RegisterPage = () => {
       confirmPassword: '',
     },
   });
+  const { mutate, isPending, error } = useRegister();
   const onSubmit = (data: RegisterInput) => {
-    console.log(data);
+    mutate(data);
+    if (!error) form.reset();
   };
 
   return (
@@ -76,7 +79,7 @@ const RegisterPage = () => {
                 label="Register"
                 type="submit"
                 Icon={IoLogInOutline}
-                isLoading={false}
+                isLoading={isPending}
               />
 
               <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card my-3">

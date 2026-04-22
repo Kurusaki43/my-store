@@ -16,14 +16,12 @@ export type LoginInput = z.infer<typeof loginSchema>;
 
 export const registerSchema = z
   .object({
-    name: z
-      .string({ error: 'Name is required' })
-      .min(1, 'Name is required and should be abouve 4 characters'),
+    name: z.string().min(4, 'Name should be abouve 4 characters'),
     email: emailSchema,
     password: passwordSchema,
     confirmPassword: passwordSchema,
   })
-  .refine((data) => data.password !== data.confirmPassword, {
+  .refine((data) => data.password === data.confirmPassword, {
     path: ['confirmPassword'],
     message: 'Passwords do not match',
   });
