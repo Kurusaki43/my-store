@@ -60,7 +60,7 @@ const RHFInput = <T extends FieldValues>({
               </div>
             </FormControl>
 
-            <FormMessage />
+            <FormMessage className="text-xs font-light" />
           </FormItem>
         );
       }}

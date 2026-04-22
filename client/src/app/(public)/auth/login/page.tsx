@@ -46,14 +46,23 @@ const LoginPage = () => {
               type="email"
               Icon={IoMailSharp}
             />
-            <RHFInput<LoginInput>
-              control={form.control}
-              name="password"
-              label="Password"
-              placeholder="Enter your password"
-              type="password"
-              Icon={FaLock}
-            />
+            <div className="flex flex-col gap-1">
+              <RHFInput<LoginInput>
+                control={form.control}
+                name="password"
+                label="Password"
+                placeholder="Enter your password"
+                type="password"
+                Icon={FaLock}
+              />
+
+              <Link
+                href="forgot-password"
+                className="ml-auto text-xs hover:underline underline-offset-1 text-blue-400 font-bold"
+              >
+                Forgot Password
+              </Link>
+            </div>
             <Field>
               <LoadingButton
                 label="Login"
