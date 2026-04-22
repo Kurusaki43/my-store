@@ -8,3 +8,7 @@ export type RegisterDTO = {
   email: string;
   password: string;
 };
+
+export type ForgotPasswordDTO = {
+  email: string;
+};
