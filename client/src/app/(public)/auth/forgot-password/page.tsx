@@ -8,8 +8,10 @@ import RHFInput from '@/components/ui/RHF/RHFInput';
 import { ForgotPasswordInput, forgotPasswordSchema } from '@/features/auth/schemas';
 import { ForgotPasswordDTO } from '@/features/auth/types';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
-import { IoLogInOutline, IoMailSharp } from 'react-icons/io5';
+import { IoMailSharp } from 'react-icons/io5';
+import { RiResetLeftLine } from 'react-icons/ri';
 
 const ForgotPassword = () => {
   const form = useForm<ForgotPasswordInput>({
@@ -41,10 +43,15 @@ const ForgotPassword = () => {
             />
 
             <div className="flex justify-between">
-              <Button variant={'outline'} className="cursor-pointer">
-                Cancel
+              <Button variant={'outline'} className="cursor-pointer" type="button">
+                <Link href="login">Cancel</Link>
               </Button>
-              <LoadingButton label="Reset password" type="submit" isLoading={false} />
+              <LoadingButton
+                label="Reset password"
+                type="submit"
+                isLoading={false}
+                Icon={RiResetLeftLine}
+              />
             </div>
           </form>
         </Form>
