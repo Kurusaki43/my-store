@@ -2,6 +2,11 @@ import { useAuthStore } from '@/features/auth/store';
 import { ApiResponse } from '@/types/api-response';
 import axios from 'axios';
 
+export const refreshApi = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  withCredentials: true,
+});
+
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
@@ -51,6 +56,7 @@ api.interceptors.response.use(
 
     if (originalRequest._retry) {
       authStore.clearAuth();
+      window.location.href = '/login';
       return Promise.reject(error);
     }
 
@@ -80,7 +86,7 @@ api.interceptors.response.use(
 
     try {
       const { data: resData } =
-        await api.post<ApiResponse<{ accessToken: string }>>('/auth/refresh');
+        await refreshApi.post<ApiResponse<{ accessToken: string }>>('/auth/refresh');
 
       const newAccessToken = resData.data.accessToken;
       authStore.setAccessToken(newAccessToken);
@@ -91,6 +97,7 @@ api.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError, null);
       authStore.clearAuth();
+      window.location.href = '/login';
 
       return Promise.reject(refreshError);
     } finally {
