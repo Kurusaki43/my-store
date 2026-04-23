@@ -23,6 +23,7 @@ export const forgotPasswordRequest = async (email: ForgotPasswordDTO) => {
 };
 
 export const resetPasswordRequest = async (data: ResetPasswordDTO) => {
-  const res = await api.patch<ResetPasswordResponse>('/auth/reset-password', data);
+  const { token, ...restData } = data;
+  const res = await api.patch<ResetPasswordResponse>(`/auth/reset-password/${token}`, restData);
   return res.data;
 };

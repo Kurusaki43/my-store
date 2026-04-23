@@ -31,10 +31,10 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z
   .object({
-    password: passwordSchema,
+    newPassword: passwordSchema,
     confirmPassword: passwordSchema,
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.newPassword === data.confirmPassword, {
     path: ['confirmPassword'],
     message: 'Passwords do not match',
   });
