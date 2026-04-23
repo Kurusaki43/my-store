@@ -1,9 +1,10 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from './store';
 import {
   forgotPasswordRequest,
   getSessionsRequest,
   loginRequest,
+  logoutAllSessions,
   registerRequest,
   resetPasswordRequest,
 } from './api';
@@ -82,8 +83,31 @@ export const useResetPassword = () => {
 };
 
 export const useGetSessions = () => {
+  const accessToken = useAuthStore((s) => s.accessToken);
   return useQuery({
     queryKey: ['sessions'],
     queryFn: getSessionsRequest,
+    enabled: !!accessToken,
+  });
+};
+
+export const useLogoutAllSessions = () => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+
+  return useMutation({
+    mutationFn: logoutAllSessions,
+    onSuccess: (res) => {
+      toast.success(res.message);
+      clearAuth();
+      queryClient.clear();
+      router.push('/login');
+    },
+
+    onError: (err) => {
+      const message = getErrorMessage(err);
+      toast.error(message);
+    },
   });
 };

@@ -13,3 +13,4 @@ export type ForgotPasswordResponse = ApiResponse<null>;
 export type ResetPasswordResponse = ApiResponse<null>;
 
 export type GetSessionsResponse = ApiResponse<{ sessions: Session[] }>;
+export type LogoutAllSessionsResponse = ApiResponse<null>;

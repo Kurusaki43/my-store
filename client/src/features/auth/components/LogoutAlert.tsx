@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -10,6 +9,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 type LogoutAlertProps = {
   btnLabel: string;
@@ -28,8 +28,10 @@ const LogoutAlert = ({
   loading = false,
   disableBtn = false,
 }: LogoutAlertProps) => {
+  const [open, setOpen] = useState(false);
+
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={(v) => !loading && setOpen(v)}>
       <AlertDialogTrigger asChild>
         <Button
           disabled={disableBtn}
@@ -46,10 +48,10 @@ const LogoutAlert = ({
           <AlertDialogDescription>{alertDescription}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onSuccess} disabled={loading}>
+          <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+          <Button onClick={onSuccess} disabled={loading}>
             {loading ? 'Loading...' : 'Continue'}
-          </AlertDialogAction>
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

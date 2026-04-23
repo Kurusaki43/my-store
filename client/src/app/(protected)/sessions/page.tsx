@@ -2,16 +2,15 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import SessionCard from '@/features/auth/components/SessionCard';
 import LogoutAlert from '@/features/auth/components/LogoutAlert';
-import { useGetSessions } from '@/features/auth/hook';
+import { useGetSessions, useLogoutAllSessions } from '@/features/auth/hook';
 import { getErrorMessage } from '@/lib/getErrorMessage';
-import { useAuthStore } from '@/features/auth/store';
 import Link from 'next/link';
 
 const SessionsPage = () => {
-  const accessToken = useAuthStore((state) => state.accessToken);
   const { data: resData, isPending, error, isError, isSuccess } = useGetSessions();
+  const { mutate: logoutAllSessions, isPending: isLogggingOutSessions } = useLogoutAllSessions();
   const sessions = resData?.data?.sessions ?? [];
-  console.log(accessToken);
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-br from-indigo-600 to-cyan-400 p-2 sm:p-4 ">
       <Card className="w-full max-w-2xl shadow-2xl rounded-2xl">
@@ -44,7 +43,8 @@ const SessionsPage = () => {
               btnLabel="Logout all devices"
               alertTitle="Logout from all devices?"
               alertDescription=" This will log you out from all active sessions across all devices. You may also be logged out from this device and will need to sign in again."
-              onSuccess={() => console.log('Handle Success')}
+              onSuccess={logoutAllSessions}
+              loading={isLogggingOutSessions}
               disableBtn={isPending}
             />
           </CardFooter>
