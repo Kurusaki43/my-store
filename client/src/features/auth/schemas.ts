@@ -12,7 +12,6 @@ export const loginSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
 });
-export type LoginInput = z.infer<typeof loginSchema>;
 
 export const registerSchema = z
   .object({
@@ -26,10 +25,21 @@ export const registerSchema = z
     message: 'Passwords do not match',
   });
 
-export type RegisterInput = z.infer<typeof registerSchema>;
-
 export const forgotPasswordSchema = z.object({
   email: emailSchema,
 });
 
+export const resetPasswordSchema = z
+  .object({
+    password: passwordSchema,
+    confirmPassword: passwordSchema,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
+  });
+
+export type LoginInput = z.infer<typeof loginSchema>;
+export type RegisterInput = z.infer<typeof registerSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

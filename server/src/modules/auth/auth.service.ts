@@ -156,7 +156,7 @@ export const AuthService = {
       type: VERIFICATION_CODE_TYPES.PASSWORD_RESET,
       expiresAt: expireAfterHours(1),
     });
-    const resetLink = `${env.CLIENT_URL}/auth/reset-password/${token}`;
+    const resetLink = `${env.CLIENT_URL}/reset-password/${token}`;
 
     await emailQueue.add('reset-password', {
       type: 'password-reset',
