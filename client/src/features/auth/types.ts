@@ -12,3 +12,8 @@ export type RegisterDTO = {
 export type ForgotPasswordDTO = {
   email: string;
 };
+
+export type ResetPasswordDTO = {
+  password: string;
+  confirmPassword: string;
+};

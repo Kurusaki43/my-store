@@ -11,3 +11,5 @@ export type LoginResponse = ApiResponse<LoginResponseData>;
 export type RegisterResponse = ApiResponse<LoginResponseData>;
 
 export type ForgotPasswordResponse = ApiResponse<null>;
+
+export type ResetPasswordResponse = ApiResponse<null>;
