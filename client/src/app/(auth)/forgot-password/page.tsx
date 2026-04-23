@@ -46,7 +46,7 @@ const ForgotPassword = () => {
 
             <div className="flex justify-between">
               <Button variant={'outline'} className="cursor-pointer" type="button" asChild>
-                <Link href="login">Cancel</Link>
+                <Link href="/login">Cancel</Link>
               </Button>
               <LoadingButton
                 label="Reset password"
