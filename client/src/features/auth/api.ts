@@ -1,6 +1,7 @@
 import { api } from '@/lib/axios';
 import {
   ForgotPasswordResponse,
+  GetSessionsResponse,
   LoginResponse,
   RegisterResponse,
   ResetPasswordResponse,
@@ -25,5 +26,10 @@ export const forgotPasswordRequest = async (email: ForgotPasswordDTO) => {
 export const resetPasswordRequest = async (data: ResetPasswordDTO) => {
   const { token, ...restData } = data;
   const res = await api.patch<ResetPasswordResponse>(`/auth/reset-password/${token}`, restData);
+  return res.data;
+};
+
+export const getSessionsRequest = async () => {
+  const res = await api.get<GetSessionsResponse>(`/auth/sessions`);
   return res.data;
 };
