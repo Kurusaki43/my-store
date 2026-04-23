@@ -7,6 +7,7 @@ import LoadingButton from '@/components/ui/LoadingButton';
 import RHFInput from '@/components/ui/RHF/RHFInput';
 import { useForgotPassword } from '@/features/auth/hook';
 import { ForgotPasswordInput, forgotPasswordSchema } from '@/features/auth/schemas';
+import { getErrorMessage } from '@/lib/getErrorMessage';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -18,7 +19,7 @@ const ForgotPassword = () => {
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: { email: '' },
   });
-  const { mutate, isPending } = useForgotPassword();
+  const { mutate, isPending, error } = useForgotPassword();
   const onSubmit = (data: ForgotPasswordInput) => {
     mutate(data);
   };
@@ -31,6 +32,7 @@ const ForgotPassword = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {error && <p className="text-sm text-red-500 text-center">{getErrorMessage(error)}</p>}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-md mx-auto">
             <RHFInput<ForgotPasswordInput>

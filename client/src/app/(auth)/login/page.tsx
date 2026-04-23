@@ -14,6 +14,7 @@ import { IoLogInOutline } from 'react-icons/io5';
 import { LoginInput, loginSchema } from '@/features/auth/schemas';
 import LoadingButton from '@/components/ui/LoadingButton';
 import { useLogin } from '@/features/auth/hook';
+import { getErrorMessage } from '@/lib/getErrorMessage';
 
 const LoginPage = () => {
   const form = useForm<LoginInput>({
@@ -26,8 +27,11 @@ const LoginPage = () => {
   const { mutate, isPending, error } = useLogin();
 
   const onSubmit = (data: LoginInput) => {
-    mutate(data);
-    if (!error) form.reset();
+    mutate(data, {
+      onSuccess: () => {
+        form.reset();
+      },
+    });
   };
   return (
     <Card className="max-w-sm w-full">
@@ -36,6 +40,7 @@ const LoginPage = () => {
         <CardDescription>Enter your credentials below to login to your account</CardDescription>
       </CardHeader>
       <CardContent>
+        {error && <p className="text-sm text-red-500 text-center">{getErrorMessage(error)}</p>}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-md mx-auto">
             <RHFInput<LoginInput>
@@ -57,7 +62,7 @@ const LoginPage = () => {
               />
 
               <Link
-                href="forgot-password"
+                href="/forgot-password"
                 className="ml-auto text-xs hover:underline underline-offset-1 text-blue-400 font-bold"
               >
                 Forgot Password
@@ -85,7 +90,7 @@ const LoginPage = () => {
               </Button>
               <p className="text-center mt-2 text-xs">
                 Don&apos;t have an account?{' '}
-                <Link href="register" className="hover:underline font-bold">
+                <Link href="/register" className="hover:underline font-bold">
                   Sign up
                 </Link>
               </p>

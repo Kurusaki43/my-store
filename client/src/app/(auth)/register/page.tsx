@@ -14,6 +14,7 @@ import { FaLock } from 'react-icons/fa';
 import { IoLogInOutline, IoMailSharp } from 'react-icons/io5';
 import { FaUser } from 'react-icons/fa';
 import { useRegister } from '@/features/auth/hook';
+import { getErrorMessage } from '@/lib/getErrorMessage';
 
 const RegisterPage = () => {
   const form = useForm<RegisterInput>({
@@ -27,8 +28,11 @@ const RegisterPage = () => {
   });
   const { mutate, isPending, error } = useRegister();
   const onSubmit = (data: RegisterInput) => {
-    mutate(data);
-    if (!error) form.reset();
+    mutate(data, {
+      onSuccess: () => {
+        form.reset();
+      },
+    });
   };
 
   return (
@@ -38,6 +42,7 @@ const RegisterPage = () => {
         <CardDescription>Sign up to explore products and start your orders</CardDescription>
       </CardHeader>
       <CardContent>
+        {error && <p className="text-sm text-red-500 text-center">{getErrorMessage(error)}</p>}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-md mx-auto">
             <RHFInput<RegisterInput>
@@ -96,7 +101,7 @@ const RegisterPage = () => {
               </Button>
               <p className="text-center mt-2 text-xs">
                 Already have an account?{' '}
-                <Link href="login" className="hover:underline font-bold">
+                <Link href="/login" className="hover:underline font-bold">
                   Login
                 </Link>
               </p>
