@@ -226,4 +226,11 @@ export const AuthService = {
       throw new AppError('Session not found', HTTP_STATUS.NOT_FOUND);
     }
   },
+  async getMe(id: string) {
+    const user = await User.findById(id);
+    if (!user) {
+      throw new AppError('User not found', HTTP_STATUS.NOT_FOUND);
+    }
+    return user;
+  },
 };

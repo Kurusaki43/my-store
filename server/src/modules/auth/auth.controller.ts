@@ -130,4 +130,14 @@ export const AuthController: Record<string, RequestHandler> = {
     await AuthService.deleteSession(req.params.sessionId as string, req.userId!);
     sendSuccess({ res, statusCode: HTTP_STATUS.OK, message: 'Session deleted successfully' });
   },
+  getMe: async (req, res) => {
+    const myId = req.userId!;
+    const user = await AuthService.getMe(myId);
+    sendSuccess({
+      res,
+      statusCode: HTTP_STATUS.OK,
+      message: 'User found successfully',
+      data: { user },
+    });
+  },
 };

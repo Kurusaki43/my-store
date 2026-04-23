@@ -16,11 +16,13 @@ authRoute.post('/register', validate({ body: registerSchema }), AuthController.r
 authRoute.post('/login', validate({ body: loginSchema }), AuthController.login);
 authRoute.post('/logout', AuthController.logout);
 authRoute.post('/refresh', AuthController.refresh);
+
 authRoute.post(
   '/forgot-password',
   validate({ body: forgotPasswordSchema }),
   AuthController.forgotPassword,
 );
+
 authRoute.patch(
   '/reset-password/:token',
   validate({
@@ -36,3 +38,5 @@ authRoute
   .delete(protect, AuthController.deleteAllSessions);
 
 authRoute.delete('/sessions/:sessionId', protect, AuthController.deleteSession);
+
+authRoute.get('/me', protect, AuthController.getMe);
