@@ -1,6 +1,12 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useAuthStore } from './store';
-import { forgotPasswordRequest, loginRequest, registerRequest, resetPasswordRequest } from './api';
+import {
+  forgotPasswordRequest,
+  getSessionsRequest,
+  loginRequest,
+  registerRequest,
+  resetPasswordRequest,
+} from './api';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { getErrorMessage } from '@/lib/getErrorMessage';
@@ -14,7 +20,7 @@ export const useLogin = () => {
       const { user, accessToken } = res.data;
       setAuth({ accessToken, user });
       toast.success(`Welcome, ${user.name} 👋`);
-      router.push('/');
+      router.push('/sessions');
     },
     onError: (error) => {
       const message = getErrorMessage(error);
@@ -72,5 +78,12 @@ export const useResetPassword = () => {
       const message = getErrorMessage(err);
       toast.error(message);
     },
+  });
+};
+
+export const useGetSessions = () => {
+  return useQuery({
+    queryKey: ['sessions'],
+    queryFn: getSessionsRequest,
   });
 };

@@ -15,7 +15,7 @@ const SessionCard = ({
 }) => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const sessionId = getSessionIdFromToken(accessToken);
-  const isCurrent = sessionId !== _id;
+  const isCurrent = sessionId === _id;
   return (
     <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between p-2 sm:p-4 rounded-xl border hover:shadow-md transition relative">
       {/* LEFT */}

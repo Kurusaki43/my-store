@@ -2,31 +2,53 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import SessionCard from '@/features/auth/components/SessionCard';
 import LogoutAlert from '@/features/auth/components/LogoutAlert';
-import { Session } from '@/features/auth/types';
-
-const sessions: Session[] = [];
+import { useGetSessions } from '@/features/auth/hook';
+import { getErrorMessage } from '@/lib/getErrorMessage';
+import { useAuthStore } from '@/features/auth/store';
+import Link from 'next/link';
 
 const SessionsPage = () => {
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const { data: resData, isPending, error, isError, isSuccess } = useGetSessions();
+  const sessions = resData?.data?.sessions ?? [];
+  console.log(accessToken);
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-br from-indigo-600 to-cyan-400 p-2 sm:p-4">
-      <Card className="w-full max-w-5xl shadow-2xl rounded-2xl">
+    <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-br from-indigo-600 to-cyan-400 p-2 sm:p-4 ">
+      <Card className="w-full max-w-2xl shadow-2xl rounded-2xl">
         <CardHeader>
           <CardTitle className="text-2xl text-center sm:text-left">Active Sessions</CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-5">
+          {isPending && (
+            <div className="p-5 flex flex-col gap-2 items-center justify-center">
+              <span className="size-8 border-3 border-blue-500 border-t-transparent animate-spin rounded-full" />
+              <p className="tracking-wide text-blue-500 animate-pulse font-semibold">
+                Loading Sessions
+              </p>
+            </div>
+          )}
+          {isError && (
+            <div className="p-5 flex flex-col gap-2 items-center justify-center">
+              <p className="text-red-400">{getErrorMessage(error)}</p>
+            </div>
+          )}
           {sessions.map((s) => (
             <SessionCard key={s._id} session={s} />
           ))}
         </CardContent>
-        <CardFooter>
-          <LogoutAlert
-            btnLabel="Logout all devices"
-            alertTitle="Logout from all devices?"
-            alertDescription=" This will log you out from all active sessions across all devices. You may also be logged out from this device and will need to sign in again."
-            onSuccess={() => console.log('Handle Success')}
-          />
-        </CardFooter>
+        {isSuccess && (
+          <CardFooter>
+            <Link href="/">Go to Home</Link>
+            <LogoutAlert
+              btnLabel="Logout all devices"
+              alertTitle="Logout from all devices?"
+              alertDescription=" This will log you out from all active sessions across all devices. You may also be logged out from this device and will need to sign in again."
+              onSuccess={() => console.log('Handle Success')}
+              disableBtn={isPending}
+            />
+          </CardFooter>
+        )}
       </Card>
     </div>
   );

@@ -17,6 +17,7 @@ type LogoutAlertProps = {
   alertDescription: string;
   onSuccess: () => void;
   loading?: boolean;
+  disableBtn?: boolean;
 };
 
 const LogoutAlert = ({
@@ -25,11 +26,13 @@ const LogoutAlert = ({
   alertDescription,
   onSuccess,
   loading = false,
+  disableBtn = false,
 }: LogoutAlertProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
+          disabled={disableBtn}
           variant="destructive"
           size="sm"
           className="text-white font-bold cursor-pointer mx-auto sm:ml-auto sm:mr-0"

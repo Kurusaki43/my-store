@@ -30,6 +30,7 @@ export const resetPasswordRequest = async (data: ResetPasswordDTO) => {
 };
 
 export const getSessionsRequest = async () => {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await api.get<GetSessionsResponse>(`/auth/sessions`);
   return res.data;
 };
