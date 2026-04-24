@@ -2,9 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from './store';
 import {
   forgotPasswordRequest,
+  getMeRequest,
   getSessionsRequest,
   loginRequest,
   logoutAllSessions,
+  refreshRequest,
   registerRequest,
   resetPasswordRequest,
 } from './api';
@@ -109,5 +111,27 @@ export const useLogoutAllSessions = () => {
       const message = getErrorMessage(err);
       toast.error(message);
     },
+  });
+};
+
+export const useInitAuth = () => {
+  const setAuth = useAuthStore((s) => s.setAuth);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isLoggingOut = useAuthStore((s) => s.isLoggingOut);
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
+
+  return useQuery({
+    queryKey: ['init-auth'],
+    queryFn: async () => {
+      const { data: refreshData } = await refreshRequest();
+      const accessToken = refreshData.accessToken;
+      setAccessToken(accessToken);
+      const { data: meData } = await getMeRequest();
+      setAuth({ accessToken, user: meData.user });
+      return meData.user;
+    },
+    enabled: !isAuthenticated && !isLoggingOut,
+    retry: false,
+    staleTime: Infinity,
   });
 };

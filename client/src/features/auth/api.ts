@@ -1,4 +1,4 @@
-import { api } from '@/lib/axios';
+import { api, refreshApi } from '@/lib/axios';
 import {
   ForgotPasswordResponse,
   GetSessionsResponse,
@@ -8,6 +8,8 @@ import {
   ResetPasswordResponse,
 } from './responses';
 import { ForgotPasswordDTO, LoginDTO, RegisterDTO, ResetPasswordDTO } from './types';
+import { ApiResponse } from '@/types/api-response';
+import { UserDTO } from '../users/types';
 
 export const loginRequest = async (data: LoginDTO): Promise<LoginResponse> => {
   const res = await api.post<LoginResponse>('/auth/login', data);
@@ -36,7 +38,16 @@ export const getSessionsRequest = async () => {
 };
 
 export const logoutAllSessions = async () => {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
   const res = await api.delete<LogoutAllSessionsResponse>(`/auth/sessions`);
+  return res.data;
+};
+
+export const refreshRequest = async () => {
+  const res = await refreshApi.post<ApiResponse<{ accessToken: string }>>('/auth/refresh');
+  return res.data;
+};
+
+export const getMeRequest = async () => {
+  const res = await api.get<ApiResponse<{ user: UserDTO }>>('/auth/me', {});
   return res.data;
 };

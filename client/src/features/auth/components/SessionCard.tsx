@@ -9,7 +9,7 @@ import { useAuthStore } from '../store';
 import { getSessionIdFromToken } from '@/lib/utils';
 
 const SessionCard = ({
-  session: { _id, userAgent, lastUsedAt, isValid, expiresAt, revokedReason, ip },
+  session: { _id, userAgent, lastUsedAt, expiresAt, ip },
 }: {
   session: Session;
 }) => {
@@ -38,11 +38,7 @@ const SessionCard = ({
       {/* RIGHT */}
       <div className="flex items-center gap-4">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={isValid ? 'default' : 'destructive'} className="text-white">
-            {isValid ? 'Active' : 'Revoked'}
-          </Badge>
-
-          {isValid && isCurrent && (
+          {isCurrent && (
             <Badge
               variant="secondary"
               className="text-xs flex items-center justify-center absolute -top-2.5 right-4 bg-lime-500 text-white hover:bg-lime-400"
@@ -54,15 +50,12 @@ const SessionCard = ({
 
         <div className="text-xs text-muted-foreground text-left">
           <div>Expires: {format(new Date(expiresAt), 'PP')}</div>
-
-          {!isValid && revokedReason && <div className="text-red-500">{revokedReason}</div>}
         </div>
 
         <Button
           size="icon"
           variant="outline"
-          disabled={!isValid}
-          className="group cursor-pointer size-8 disabled:opacity-50"
+          className="group cursor-pointer size-8"
         >
           <Trash2 size={16} className="group-hover:text-red-500" />
         </Button>

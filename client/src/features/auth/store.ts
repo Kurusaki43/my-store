@@ -5,6 +5,7 @@ interface AuthStore {
   user: UserDTO | null;
   accessToken: string | null;
   isAuthenticated: boolean;
+  isLoggingOut: boolean;
 
   setAuth: (data: { user: UserDTO; accessToken: string }) => void;
   setAccessToken: (accessToken: string) => void;
@@ -15,12 +16,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   accessToken: null,
   isAuthenticated: false,
+  isLoggingOut: false,
 
   setAuth: ({ user, accessToken }) =>
     set({
       user,
       accessToken,
       isAuthenticated: true,
+      isLoggingOut: false,
     }),
   setAccessToken: (accessToken) =>
     set((state) => ({
@@ -32,5 +35,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
       user: null,
       accessToken: null,
       isAuthenticated: false,
+      isLoggingOut: true,
     }),
 }));
