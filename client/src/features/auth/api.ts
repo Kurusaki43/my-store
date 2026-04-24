@@ -4,6 +4,7 @@ import {
   GetSessionsResponse,
   LoginResponse,
   LogoutAllSessionsResponse,
+  logoutResponse,
   RegisterResponse,
   ResetPasswordResponse,
 } from './responses';
@@ -29,6 +30,11 @@ export const forgotPasswordRequest = async (email: ForgotPasswordDTO) => {
 export const resetPasswordRequest = async (data: ResetPasswordDTO) => {
   const { token, ...restData } = data;
   const res = await api.patch<ResetPasswordResponse>(`/auth/reset-password/${token}`, restData);
+  return res.data;
+};
+
+export const logoutRequest = async () => {
+  const res = await api.post<logoutResponse>('/auth/logout/');
   return res.data;
 };
 

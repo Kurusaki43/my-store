@@ -6,6 +6,7 @@ import {
   getSessionsRequest,
   loginRequest,
   logoutAllSessionsRequest,
+  logoutRequest,
   refreshRequest,
   registerRequest,
   resetPasswordRequest,
@@ -58,6 +59,18 @@ export const useResetPassword = () => {
     mutationFn: resetPasswordRequest,
   });
 };
+
+export const useLogout = () => {
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+  return useMutation({
+    mutationFn: logoutRequest,
+    onSettled: () => {
+      clearAuth();
+      window.location.replace('/login');
+    },
+  });
+};
+
 export const useLogoutAllSessions = () => {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   return useMutation({

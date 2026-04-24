@@ -6,6 +6,7 @@ import { useGetSessions, useLogoutAllSessions } from '@/features/auth/hook';
 import { getErrorMessage } from '@/lib/getErrorMessage';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import LogoutButton from '@/features/auth/LogoutButton';
 
 const SessionsPage = () => {
   const { data: resData, isPending, error, isError, isSuccess } = useGetSessions();
@@ -22,7 +23,7 @@ const SessionsPage = () => {
     });
   };
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-br from-indigo-600 to-cyan-400 p-2 sm:p-4 ">
+    <div className="relatice min-h-screen w-full flex items-center justify-center bg-linear-to-br from-indigo-600 to-cyan-400 p-2 sm:p-4 ">
       <Card className="w-full max-w-2xl shadow-2xl rounded-2xl">
         <CardHeader>
           <CardTitle className="text-2xl text-center sm:text-left">Active Sessions</CardTitle>
@@ -60,6 +61,7 @@ const SessionsPage = () => {
           </CardFooter>
         )}
       </Card>
+      <LogoutButton />
     </div>
   );
 };
