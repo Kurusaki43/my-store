@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from './store';
 import {
+  deleteSessionRequest,
   forgotPasswordRequest,
   getMeRequest,
   getSessionsRequest,
@@ -67,6 +68,16 @@ export const useLogout = () => {
     onSettled: () => {
       clearAuth();
       window.location.replace('/login');
+    },
+  });
+};
+
+export const useDeleteSession = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteSessionRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
     },
   });
 };

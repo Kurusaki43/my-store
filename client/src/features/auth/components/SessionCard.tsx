@@ -2,11 +2,14 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Laptop, Smartphone, Tablet, Globe, Terminal, Trash2 } from 'lucide-react';
+import { Laptop, Smartphone, Tablet, Globe, Terminal, Trash2, Loader } from 'lucide-react';
 import { format } from 'date-fns';
 import { Session } from '../types';
 import { useAuthStore } from '../store';
 import { getSessionIdFromToken } from '@/lib/utils';
+import toast from 'react-hot-toast';
+import { getErrorMessage } from '@/lib/getErrorMessage';
+import { useDeleteSession } from '../hook';
 
 const SessionCard = ({
   session: { _id, userAgent, lastUsedAt, expiresAt, ip },
@@ -16,6 +19,19 @@ const SessionCard = ({
   const accessToken = useAuthStore((state) => state.accessToken);
   const sessionId = getSessionIdFromToken(accessToken);
   const isCurrent = sessionId === _id;
+  const { mutate, isPending } = useDeleteSession();
+
+  const handleDeleteSession = () => {
+    mutate(_id, {
+      onSuccess: () => {
+        toast.success('Session deleted successfully');
+      },
+      onError: (err) => {
+        toast.error(getErrorMessage(err));
+      },
+    });
+  };
+
   return (
     <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between p-2 sm:p-4 rounded-xl border hover:shadow-md transition relative">
       {/* LEFT */}
@@ -52,13 +68,21 @@ const SessionCard = ({
           <div>Expires: {format(new Date(expiresAt), 'PP')}</div>
         </div>
 
-        <Button
-          size="icon"
-          variant="outline"
-          className="group cursor-pointer size-8"
-        >
-          <Trash2 size={16} className="group-hover:text-red-500" />
-        </Button>
+        {!isCurrent && (
+          <Button
+            size="icon"
+            variant="outline"
+            className="group cursor-pointer size-8"
+            onClick={handleDeleteSession}
+            disabled={isPending}
+          >
+            {isPending ? (
+              <Loader size={16} className="group-hover:text-red-500 animate-spin" />
+            ) : (
+              <Trash2 size={16} className="group-hover:text-red-500" />
+            )}
+          </Button>
+        )}
       </div>
     </div>
   );

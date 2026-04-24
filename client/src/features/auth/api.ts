@@ -5,6 +5,7 @@ import {
   LoginResponse,
   LogoutAllSessionsResponse,
   logoutResponse,
+  logoutSessionResponse,
   RegisterResponse,
   ResetPasswordResponse,
 } from './responses';
@@ -40,6 +41,12 @@ export const logoutRequest = async () => {
 
 export const getSessionsRequest = async () => {
   const res = await api.get<GetSessionsResponse>(`/auth/sessions`);
+  return res.data;
+};
+
+export const deleteSessionRequest = async (sessionId: string) => {
+  await new Promise((res) => setTimeout(res, 3000));
+  const res = await api.delete<logoutSessionResponse>(`/auth/sessions/${sessionId}`);
   return res.data;
 };
 
