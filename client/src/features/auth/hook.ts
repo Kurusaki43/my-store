@@ -5,115 +5,90 @@ import {
   getMeRequest,
   getSessionsRequest,
   loginRequest,
-  logoutAllSessions,
+  logoutAllSessionsRequest,
   refreshRequest,
   registerRequest,
   resetPasswordRequest,
 } from './api';
-import { useRouter } from 'next/navigation';
-import { toast } from 'react-hot-toast';
-import { getErrorMessage } from '@/lib/getErrorMessage';
+
+/* =========================
+   MUTATIONS
+========================= */
 
 export const useLogin = () => {
-  const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: loginRequest,
     onSuccess: (res) => {
       const { user, accessToken } = res.data;
       setAuth({ accessToken, user });
-      toast.success(`Welcome, ${user.name} 👋`);
-      router.push('/sessions');
-    },
-    onError: (error) => {
-      const message = getErrorMessage(error);
-      toast.error(message);
+
+      queryClient.setQueryData(['me'], user);
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
     },
   });
 };
 
 export const useRegister = () => {
-  const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: registerRequest,
     onSuccess: (res) => {
       const { user, accessToken } = res.data;
       setAuth({ accessToken, user });
-      toast.success(`Account created! Welcome, ${user.name} 👋`);
-      router.push('/');
-    },
-    onError: (error) => {
-      const message = getErrorMessage(error);
-      toast.error(message);
+
+      queryClient.setQueryData(['me'], user);
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
     },
   });
 };
 
 export const useForgotPassword = () => {
-  const router = useRouter();
-
   return useMutation({
     mutationFn: forgotPasswordRequest,
-    onSuccess: (res) => {
-      toast.success(res.message);
-      router.push('/');
-    },
-
-    onError: (err) => {
-      const message = getErrorMessage(err);
-      toast.error(message);
-    },
   });
 };
 
 export const useResetPassword = () => {
-  const router = useRouter();
-
   return useMutation({
     mutationFn: resetPasswordRequest,
-    onSuccess: (res) => {
-      toast.success(res.message);
-      router.push('/login');
-    },
-
-    onError: (err) => {
-      const message = getErrorMessage(err);
-      toast.error(message);
+  });
+};
+export const useLogoutAllSessions = () => {
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+  return useMutation({
+    mutationFn: logoutAllSessionsRequest,
+    onSuccess: () => {
+      clearAuth();
     },
   });
 };
 
+/* =========================
+   QUERIES
+========================= */
 export const useGetSessions = () => {
-  const accessToken = useAuthStore((s) => s.accessToken);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   return useQuery({
     queryKey: ['sessions'],
     queryFn: getSessionsRequest,
-    enabled: !!accessToken,
+    enabled: isAuthenticated,
   });
 };
 
-export const useLogoutAllSessions = () => {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const clearAuth = useAuthStore((s) => s.clearAuth);
-
-  return useMutation({
-    mutationFn: logoutAllSessions,
-    onSuccess: (res) => {
-      toast.success(res.message);
-      clearAuth();
-      queryClient.clear();
-      router.push('/login');
-    },
-
-    onError: (err) => {
-      const message = getErrorMessage(err);
-      toast.error(message);
-    },
+export const useGetMe = () => {
+  return useQuery({
+    queryKey: ['me'],
+    queryFn: getMeRequest,
+    staleTime: 5 * 60 * 1000,
   });
 };
 
+/* =========================
+   INIT AUTH (BOOTSTRAP)
+========================= */
 export const useInitAuth = () => {
   const setAuth = useAuthStore((s) => s.setAuth);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -124,14 +99,18 @@ export const useInitAuth = () => {
     queryKey: ['init-auth'],
     queryFn: async () => {
       const { data: refreshData } = await refreshRequest();
+
       const accessToken = refreshData.accessToken;
       setAccessToken(accessToken);
+
       const { data: meData } = await getMeRequest();
       setAuth({ accessToken, user: meData.user });
+
       return meData.user;
     },
     enabled: !isAuthenticated && !isLoggingOut,
     retry: false,
     staleTime: Infinity,
+    refetchOnWindowFocus: false,
   });
 };

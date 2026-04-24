@@ -15,8 +15,11 @@ import { LoginInput, loginSchema } from '@/features/auth/schemas';
 import LoadingButton from '@/components/ui/LoadingButton';
 import { useLogin } from '@/features/auth/hook';
 import { getErrorMessage } from '@/lib/getErrorMessage';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 const LoginPage = () => {
+  const router = useRouter();
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -28,8 +31,12 @@ const LoginPage = () => {
 
   const onSubmit = (data: LoginInput) => {
     mutate(data, {
-      onSuccess: () => {
-        form.reset();
+      onSuccess: (res) => {
+        toast.success(`Welcome, ${res.data.user.name} 👋`);
+        router.replace('/sessions');
+      },
+      onError: (error) => {
+        toast.error(getErrorMessage(error));
       },
     });
   };

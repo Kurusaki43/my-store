@@ -15,8 +15,11 @@ import { IoLogInOutline, IoMailSharp } from 'react-icons/io5';
 import { FaUser } from 'react-icons/fa';
 import { useRegister } from '@/features/auth/hook';
 import { getErrorMessage } from '@/lib/getErrorMessage';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 const RegisterPage = () => {
+  const router = useRouter();
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -29,8 +32,12 @@ const RegisterPage = () => {
   const { mutate, isPending, error } = useRegister();
   const onSubmit = (data: RegisterInput) => {
     mutate(data, {
-      onSuccess: () => {
-        form.reset();
+      onSuccess: (res) => {
+        toast.success(`Account created! Welcome, ${res.data.user.name} 👋`);
+        router.replace('/sessions');
+      },
+      onError: (error) => {
+        toast.error(getErrorMessage(error));
       },
     });
   };

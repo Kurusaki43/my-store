@@ -37,7 +37,7 @@ export const getSessionsRequest = async () => {
   return res.data;
 };
 
-export const logoutAllSessions = async () => {
+export const logoutAllSessionsRequest = async () => {
   const res = await api.delete<LogoutAllSessionsResponse>(`/auth/sessions`);
   return res.data;
 };

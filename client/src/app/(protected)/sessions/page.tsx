@@ -4,13 +4,29 @@ import SessionCard from '@/features/auth/components/SessionCard';
 import LogoutAlert from '@/features/auth/components/LogoutAlert';
 import { useGetSessions, useLogoutAllSessions } from '@/features/auth/hook';
 import { getErrorMessage } from '@/lib/getErrorMessage';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 
 const SessionsPage = () => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: resData, isPending, error, isError, isSuccess } = useGetSessions();
-  const { mutate: logoutAllSessions, isPending: isLogggingOutSessions } = useLogoutAllSessions();
+  const { mutate, isPending: isLoggingOutSessions } = useLogoutAllSessions();
   const sessions = resData?.data?.sessions ?? [];
-
+  const handleLogoutAllSessions = () => {
+    mutate(undefined, {
+      onSuccess: (res) => {
+        router.replace('/login');
+        toast.success(res.message);
+        queryClient.clear();
+      },
+      onError: (err) => {
+        toast.error(getErrorMessage(err));
+      },
+    });
+  };
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-br from-indigo-600 to-cyan-400 p-2 sm:p-4 ">
       <Card className="w-full max-w-2xl shadow-2xl rounded-2xl">
@@ -43,9 +59,9 @@ const SessionsPage = () => {
               btnLabel="Logout all devices"
               alertTitle="Logout from all devices?"
               alertDescription=" This will log you out from all active sessions across all devices. You may also be logged out from this device and will need to sign in again."
-              onSuccess={logoutAllSessions}
-              loading={isLogggingOutSessions}
-              disableBtn={isPending}
+              onSuccess={handleLogoutAllSessions}
+              loading={isLoggingOutSessions}
+              disableBtn={isLoggingOutSessions}
             />
           </CardFooter>
         )}
