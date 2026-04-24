@@ -26,6 +26,7 @@ export const useLogin = () => {
 
       queryClient.setQueryData(['me'], user);
       queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.removeQueries({ queryKey: ['init-auth'] });
     },
   });
 };
@@ -41,6 +42,7 @@ export const useRegister = () => {
 
       queryClient.setQueryData(['me'], user);
       queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.removeQueries({ queryKey: ['init-auth'] });
     },
   });
 };
@@ -62,6 +64,7 @@ export const useLogoutAllSessions = () => {
     mutationFn: logoutAllSessionsRequest,
     onSuccess: () => {
       clearAuth();
+      window.location.replace('/login');
     },
   });
 };
