@@ -2,6 +2,7 @@ import { type RequestHandler } from 'express';
 import { extractDeviceInfo } from '@/utils/helpers';
 import type {
   ForgotPasswordDTO,
+  GoogleAuthDTO,
   LoginDTO,
   RegisterDTO,
   ResetPasswordDTO,
@@ -61,7 +62,24 @@ export const AuthController: Record<string, RequestHandler> = {
       data: { user, accessToken },
     });
   },
+  googleAuth: async (req, res) => {
+    const { idToken } = req.body as GoogleAuthDTO;
+    const { ip, userAgent } = extractDeviceInfo(req);
 
+    const { accessToken, refreshToken, sessionId, user } = await AuthService.googleAuth({
+      idToken,
+      ip,
+      userAgent,
+    });
+    const resWithCookies = setCookies(res, refreshToken, sessionId);
+
+    sendSuccess({
+      res: resWithCookies,
+      statusCode: HTTP_STATUS.OK,
+      message: 'Login successful',
+      data: { user, accessToken },
+    });
+  },
   logout: async (req, res) => {
     const sessionId = getCookie(req, SESSION_ID_COOKIE_NAME);
     if (!sessionId) {

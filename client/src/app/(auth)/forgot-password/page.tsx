@@ -10,18 +10,29 @@ import { ForgotPasswordInput, forgotPasswordSchema } from '@/features/auth/schem
 import { getErrorMessage } from '@/lib/getErrorMessage';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 import { IoMailSharp } from 'react-icons/io5';
 import { RiResetLeftLine } from 'react-icons/ri';
 
 const ForgotPassword = () => {
+  const router = useRouter();
   const form = useForm<ForgotPasswordInput>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: { email: '' },
   });
   const { mutate, isPending, error } = useForgotPassword();
   const onSubmit = (data: ForgotPasswordInput) => {
-    mutate(data);
+    mutate(data, {
+      onSuccess: (res) => {
+        toast.success(res.message);
+        router.replace('/');
+      },
+      onError: (err) => {
+        toast.error(getErrorMessage(err));
+      },
+    });
   };
   return (
     <Card className="max-w-sm w-full">

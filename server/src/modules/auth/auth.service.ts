@@ -13,6 +13,10 @@ import { expireAfterDays, expireAfterHours, generateCode, hashCode } from '@/uti
 import { SESSION_REVOCATION_REASONS, VERIFICATION_CODE_TYPES } from './auth.types';
 import { emailQueue } from '@/jobs/email/email.queue';
 import { env } from '@/config/env';
+import { OAuth2Client } from 'google-auth-library';
+import { Provider, type IUser } from '@/modules/user/user.types';
+
+const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
 
 export const AuthService = {
   async register(userData: RegisterDTO, ip: string, userAgent: string) {
@@ -51,7 +55,12 @@ export const AuthService = {
     if (!user) {
       throw new AppError('Invalid email or password', HTTP_STATUS.UNAUTHORIZED);
     }
-
+    if (user.provider === Provider.GOOGLE) {
+      throw new AppError(
+        'You signed up with Google. Please continue using Google to sign in.',
+        HTTP_STATUS.UNAUTHORIZED,
+      );
+    }
     const isMatch = await user.comparePassword(loginData.password);
     if (!isMatch) {
       throw new AppError('Invalid email or password', HTTP_STATUS.UNAUTHORIZED);
@@ -73,6 +82,57 @@ export const AuthService = {
 
     return { user, accessToken, refreshToken, sessionId: session._id.toString() };
   },
+
+  async googleAuth(data: { idToken: string; ip: string; userAgent: string }) {
+    const { idToken, ip, userAgent } = data;
+    let ticket;
+    try {
+      ticket = await client.verifyIdToken({
+        idToken,
+        audience: env.GOOGLE_CLIENT_ID,
+      });
+    } catch {
+      throw new AppError('Token is not valid', HTTP_STATUS.UNAUTHORIZED);
+    }
+
+    const payload = ticket.getPayload();
+
+    const email = payload?.email;
+    const name = payload?.name;
+    const picture = payload?.picture;
+    const emailVerified = payload?.email_verified;
+
+    if (!emailVerified) {
+      throw new AppError('Email not verified', HTTP_STATUS.BAD_REQUEST);
+    }
+
+    let user: IUser | null = await User.findOne({ email });
+
+    user ??= await User.create({
+      name,
+      email,
+      avatar: picture,
+      provider: Provider.GOOGLE,
+      isVerified: true,
+    });
+
+    const refreshToken = generateRefreshToken();
+    const session = await Session.create({
+      user: user._id,
+      refreshTokenHash: hashRefreshToken(refreshToken),
+      ip,
+      userAgent,
+      expiresAt: expireAfterDays(SESSION_TTL_DAYS),
+    });
+    const accessToken = signAccessToken({
+      userId: user._id,
+      sessionId: session._id,
+      role: user.role,
+    });
+
+    return { user, accessToken, refreshToken, sessionId: session._id.toString() };
+  },
+
   async logout(sessionId: string) {
     await Session.updateOne(
       { _id: sessionId },
@@ -134,12 +194,15 @@ export const AuthService = {
       newRefreshToken,
     };
   },
+
   async forgotPassword(email: string) {
     const user = await User.findOne({ email });
     if (!user) {
       return;
     }
-
+    if (user.provider === Provider.GOOGLE) {
+      return;
+    }
     const code = await VerificationCode.findOne({
       user: user._id,
       type: VERIFICATION_CODE_TYPES.PASSWORD_RESET,

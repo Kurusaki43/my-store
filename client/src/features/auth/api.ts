@@ -2,8 +2,11 @@ import { api, refreshApi } from '@/lib/axios';
 import {
   ForgotPasswordResponse,
   GetSessionsResponse,
+  GoogleAuthResponse,
   LoginResponse,
   LogoutAllSessionsResponse,
+  LogoutResponse,
+  LogoutSessionResponse,
   RegisterResponse,
   ResetPasswordResponse,
 } from './responses';
@@ -21,6 +24,11 @@ export const registerRequest = async (data: RegisterDTO) => {
   return res.data;
 };
 
+export const googleAuthRequest = async (idToken: { idToken: string }) => {
+  const res = await api.post<GoogleAuthResponse>('/auth/google', idToken);
+  return res.data;
+};
+
 export const forgotPasswordRequest = async (email: ForgotPasswordDTO) => {
   const res = await api.post<ForgotPasswordResponse>('/auth/forgot-password', email);
   return res.data;
@@ -32,12 +40,22 @@ export const resetPasswordRequest = async (data: ResetPasswordDTO) => {
   return res.data;
 };
 
+export const logoutRequest = async () => {
+  const res = await api.post<LogoutResponse>('/auth/logout/');
+  return res.data;
+};
+
 export const getSessionsRequest = async () => {
   const res = await api.get<GetSessionsResponse>(`/auth/sessions`);
   return res.data;
 };
 
-export const logoutAllSessions = async () => {
+export const deleteSessionRequest = async (sessionId: string) => {
+  const res = await api.delete<LogoutSessionResponse>(`/auth/sessions/${sessionId}`);
+  return res.data;
+};
+
+export const logoutAllSessionsRequest = async () => {
   const res = await api.delete<LogoutAllSessionsResponse>(`/auth/sessions`);
   return res.data;
 };

@@ -5,14 +5,25 @@ import LogoutAlert from '@/features/auth/components/LogoutAlert';
 import { useGetSessions, useLogoutAllSessions } from '@/features/auth/hook';
 import { getErrorMessage } from '@/lib/getErrorMessage';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+import LogoutButton from '@/features/auth/LogoutButton';
 
 const SessionsPage = () => {
   const { data: resData, isPending, error, isError, isSuccess } = useGetSessions();
-  const { mutate: logoutAllSessions, isPending: isLogggingOutSessions } = useLogoutAllSessions();
+  const { mutate, isPending: isLoggingOutSessions } = useLogoutAllSessions();
   const sessions = resData?.data?.sessions ?? [];
-
+  const handleLogoutAllSessions = () => {
+    mutate(undefined, {
+      onSuccess: (res) => {
+        toast.success(res.message);
+      },
+      onError: (err) => {
+        toast.error(getErrorMessage(err));
+      },
+    });
+  };
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-linear-to-br from-indigo-600 to-cyan-400 p-2 sm:p-4 ">
+    <div className="relatice min-h-screen w-full flex items-center justify-center bg-linear-to-br from-indigo-600 to-cyan-400 p-2 sm:p-4 ">
       <Card className="w-full max-w-2xl shadow-2xl rounded-2xl">
         <CardHeader>
           <CardTitle className="text-2xl text-center sm:text-left">Active Sessions</CardTitle>
@@ -37,19 +48,20 @@ const SessionsPage = () => {
           ))}
         </CardContent>
         {isSuccess && (
-          <CardFooter>
+          <CardFooter className="rounded-b-none">
             <Link href="/">Go to Home</Link>
             <LogoutAlert
               btnLabel="Logout all devices"
               alertTitle="Logout from all devices?"
               alertDescription=" This will log you out from all active sessions across all devices. You may also be logged out from this device and will need to sign in again."
-              onSuccess={logoutAllSessions}
-              loading={isLogggingOutSessions}
-              disableBtn={isPending}
+              onSuccess={handleLogoutAllSessions}
+              loading={isLoggingOutSessions}
+              disableBtn={isLoggingOutSessions}
             />
           </CardFooter>
         )}
       </Card>
+      <LogoutButton />
     </div>
   );
 };

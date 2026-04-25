@@ -56,7 +56,7 @@ api.interceptors.response.use(
 
     if (originalRequest._retry) {
       authStore.clearAuth();
-      window.location.href = '/login';
+      window.location.replace('/login');
       return Promise.reject(error);
     }
 

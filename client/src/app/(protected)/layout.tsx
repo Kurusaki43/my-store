@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
-  const { isError, isLoading } = useInitAuth();
   const router = useRouter();
+  const { isError, isLoading } = useInitAuth();
 
   useEffect(() => {
     if (!isLoading && isError) {

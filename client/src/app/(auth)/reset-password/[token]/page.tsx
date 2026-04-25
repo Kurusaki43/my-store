@@ -7,8 +7,10 @@ import { useResetPassword } from '@/features/auth/hook';
 import { ResetPasswordInput, resetPasswordSchema } from '@/features/auth/schemas';
 import { getErrorMessage } from '@/lib/getErrorMessage';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
 import { FaLock } from 'react-icons/fa';
 import { GiConfirmed } from 'react-icons/gi';
 
@@ -18,6 +20,7 @@ type Props = {
 
 const ResetPasswordPage = ({ params }: Props) => {
   const { token } = React.use(params);
+  const router = useRouter();
   const form = useForm<ResetPasswordInput>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
@@ -30,8 +33,12 @@ const ResetPasswordPage = ({ params }: Props) => {
     mutate(
       { ...data, token },
       {
-        onSuccess: () => {
-          form.reset();
+        onSuccess: (res) => {
+          toast.success(res.message);
+          router.replace('/login');
+        },
+        onError: (err) => {
+          toast.error(getErrorMessage(err));
         },
       },
     );
