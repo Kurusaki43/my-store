@@ -5,6 +5,7 @@ import {
   forgotPasswordRequest,
   getMeRequest,
   getSessionsRequest,
+  googleAuthRequest,
   loginRequest,
   logoutAllSessionsRequest,
   logoutRequest,
@@ -38,6 +39,22 @@ export const useRegister = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: registerRequest,
+    onSuccess: (res) => {
+      const { user, accessToken } = res.data;
+      setAuth({ accessToken, user });
+
+      queryClient.setQueryData(['me'], user);
+      queryClient.invalidateQueries({ queryKey: ['sessions'] });
+      queryClient.removeQueries({ queryKey: ['init-auth'] });
+    },
+  });
+};
+
+export const useGoogleAuth = () => {
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: googleAuthRequest,
     onSuccess: (res) => {
       const { user, accessToken } = res.data;
       setAuth({ accessToken, user });

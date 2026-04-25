@@ -2,6 +2,7 @@ import { api, refreshApi } from '@/lib/axios';
 import {
   ForgotPasswordResponse,
   GetSessionsResponse,
+  GoogleAuthResponse,
   LoginResponse,
   LogoutAllSessionsResponse,
   logoutResponse,
@@ -20,6 +21,11 @@ export const loginRequest = async (data: LoginDTO): Promise<LoginResponse> => {
 
 export const registerRequest = async (data: RegisterDTO) => {
   const res = await api.post<RegisterResponse>('/auth/register', data);
+  return res.data;
+};
+
+export const googleAuthRequest = async (idToken: { idToken: string }) => {
+  const res = await api.post<GoogleAuthResponse>('/auth/google', idToken);
   return res.data;
 };
 

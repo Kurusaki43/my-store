@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import type { Metadata } from 'next';
 import './globals.css';
 import QueryProvider from '@/components/providers/QueryProvider';
+import GoogleAuthProvider from '@/components/providers/GoogleAuthProvider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -23,10 +24,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.className} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <QueryProvider>
-          {children}
-          <Toaster position="top-right" toastOptions={{ duration: 5000 }} />
-        </QueryProvider>
+        <GoogleAuthProvider>
+          <QueryProvider>
+            {children}
+            <Toaster position="top-right" toastOptions={{ duration: 5000 }} />
+          </QueryProvider>
+        </GoogleAuthProvider>
       </body>
     </html>
   );
