@@ -110,9 +110,9 @@ export const AuthService = {
     user ??= await User.create({
       name,
       email,
-      password: undefined,
       avatar: picture,
       provider: Provider.GOOGLE,
+      isVerified: true,
     });
 
     const refreshToken = generateRefreshToken();

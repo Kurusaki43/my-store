@@ -21,7 +21,7 @@ export interface Address {
 export interface IUser extends Document {
   name: string;
   email: string;
-  password: string;
+  password: string | undefined;
   role: RoleType;
   avatar?: string;
   address?: Address[];

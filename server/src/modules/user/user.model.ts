@@ -17,7 +17,6 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
       minlength: [8, 'Password must be at least 8 characters long'],
       select: false,
     },
@@ -56,7 +55,7 @@ userSchema.set('toJSON', {
 });
 
 userSchema.pre<IUser>('save', async function () {
-  if (!this.isModified('password')) {
+  if (!this.password || !this.isModified('password')) {
     return;
   }
   const salt = await bcrypt.genSalt(12);
