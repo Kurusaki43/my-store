@@ -56,7 +56,10 @@ export const AuthService = {
       throw new AppError('Invalid email or password', HTTP_STATUS.UNAUTHORIZED);
     }
     if (user.provider === Provider.GOOGLE) {
-      throw new AppError('You signed up with Google. Please continue using Google to sign in.');
+      throw new AppError(
+        'You signed up with Google. Please continue using Google to sign in.',
+        HTTP_STATUS.UNAUTHORIZED,
+      );
     }
     const isMatch = await user.comparePassword(loginData.password);
     if (!isMatch) {
@@ -89,7 +92,7 @@ export const AuthService = {
         audience: env.GOOGLE_CLIENT_ID,
       });
     } catch {
-      throw new AppError('Token is not valid', HTTP_STATUS.BAD_REQUEST);
+      throw new AppError('Token is not valid', HTTP_STATUS.UNAUTHORIZED);
     }
 
     const payload = ticket.getPayload();
@@ -104,10 +107,6 @@ export const AuthService = {
     }
 
     let user: IUser | null = await User.findOne({ email });
-
-    if (user?.provider === Provider.LOCAL) {
-      throw new AppError('Please login with email/password', HTTP_STATUS.BAD_REQUEST);
-    }
 
     user ??= await User.create({
       name,
@@ -202,7 +201,7 @@ export const AuthService = {
       return;
     }
     if (user.provider === Provider.GOOGLE) {
-      throw new AppError('You signed up with Google. Please continue using Google to sign in.');
+      return;
     }
     const code = await VerificationCode.findOne({
       user: user._id,
