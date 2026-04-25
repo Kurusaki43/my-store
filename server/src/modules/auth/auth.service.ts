@@ -201,7 +201,9 @@ export const AuthService = {
     if (!user) {
       return;
     }
-
+    if (user.provider === Provider.GOOGLE) {
+      throw new AppError('You signed up with Google. Please continue using Google to sign in.');
+    }
     const code = await VerificationCode.findOne({
       user: user._id,
       type: VERIFICATION_CODE_TYPES.PASSWORD_RESET,

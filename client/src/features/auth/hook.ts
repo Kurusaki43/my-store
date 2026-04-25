@@ -13,57 +13,37 @@ import {
   registerRequest,
   resetPasswordRequest,
 } from './api';
+import { useShallow } from 'zustand/react/shallow';
+import { LoginResponse } from './responses';
 
 /* =========================
    MUTATIONS
 ========================= */
+const usePostAuthSuccess = () => {
+  const setAuth = useAuthStore((s) => s.setAuth);
+  const queryClient = useQueryClient();
+  return (res: LoginResponse) => {
+    const { user, accessToken } = res.data;
+    setAuth({ accessToken, user });
+    queryClient.setQueryData(['me'], user);
+    queryClient.invalidateQueries({ queryKey: ['sessions'] });
+    queryClient.removeQueries({ queryKey: ['init-auth'] });
+  };
+};
 
 export const useLogin = () => {
-  const setAuth = useAuthStore((state) => state.setAuth);
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: loginRequest,
-    onSuccess: (res) => {
-      const { user, accessToken } = res.data;
-      setAuth({ accessToken, user });
-
-      queryClient.setQueryData(['me'], user);
-      queryClient.invalidateQueries({ queryKey: ['sessions'] });
-      queryClient.removeQueries({ queryKey: ['init-auth'] });
-    },
-  });
+  const onAuthSuccess = usePostAuthSuccess();
+  return useMutation({ mutationFn: loginRequest, onSuccess: onAuthSuccess });
 };
 
 export const useRegister = () => {
-  const setAuth = useAuthStore((state) => state.setAuth);
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: registerRequest,
-    onSuccess: (res) => {
-      const { user, accessToken } = res.data;
-      setAuth({ accessToken, user });
-
-      queryClient.setQueryData(['me'], user);
-      queryClient.invalidateQueries({ queryKey: ['sessions'] });
-      queryClient.removeQueries({ queryKey: ['init-auth'] });
-    },
-  });
+  const onAuthSuccess = usePostAuthSuccess();
+  return useMutation({ mutationFn: registerRequest, onSuccess: onAuthSuccess });
 };
 
 export const useGoogleAuth = () => {
-  const setAuth = useAuthStore((state) => state.setAuth);
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: googleAuthRequest,
-    onSuccess: (res) => {
-      const { user, accessToken } = res.data;
-      setAuth({ accessToken, user });
-
-      queryClient.setQueryData(['me'], user);
-      queryClient.invalidateQueries({ queryKey: ['sessions'] });
-      queryClient.removeQueries({ queryKey: ['init-auth'] });
-    },
-  });
+  const onAuthSuccess = usePostAuthSuccess();
+  return useMutation({ mutationFn: googleAuthRequest, onSuccess: onAuthSuccess });
 };
 
 export const useForgotPassword = () => {
@@ -123,9 +103,11 @@ export const useGetSessions = () => {
 };
 
 export const useGetMe = () => {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   return useQuery({
     queryKey: ['me'],
     queryFn: getMeRequest,
+    enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000,
   });
 };
@@ -135,10 +117,13 @@ export const useGetMe = () => {
 ========================= */
 export const useInitAuth = () => {
   const setAuth = useAuthStore((s) => s.setAuth);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const isLoggingOut = useAuthStore((s) => s.isLoggingOut);
-  const setAccessToken = useAuthStore((state) => state.setAccessToken);
-
+  const { isAuthenticated, isLoggingOut, setAccessToken } = useAuthStore(
+    useShallow((s) => ({
+      isAuthenticated: s.isAuthenticated,
+      isLoggingOut: s.isLoggingOut,
+      setAccessToken: s.setAccessToken,
+    })),
+  );
   return useQuery({
     queryKey: ['init-auth'],
     queryFn: async () => {

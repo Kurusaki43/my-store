@@ -5,8 +5,8 @@ import {
   GoogleAuthResponse,
   LoginResponse,
   LogoutAllSessionsResponse,
-  logoutResponse,
-  logoutSessionResponse,
+  LogoutResponse,
+  LogoutSessionResponse,
   RegisterResponse,
   ResetPasswordResponse,
 } from './responses';
@@ -41,7 +41,7 @@ export const resetPasswordRequest = async (data: ResetPasswordDTO) => {
 };
 
 export const logoutRequest = async () => {
-  const res = await api.post<logoutResponse>('/auth/logout/');
+  const res = await api.post<LogoutResponse>('/auth/logout/');
   return res.data;
 };
 
@@ -51,8 +51,7 @@ export const getSessionsRequest = async () => {
 };
 
 export const deleteSessionRequest = async (sessionId: string) => {
-  await new Promise((res) => setTimeout(res, 3000));
-  const res = await api.delete<logoutSessionResponse>(`/auth/sessions/${sessionId}`);
+  const res = await api.delete<LogoutSessionResponse>(`/auth/sessions/${sessionId}`);
   return res.data;
 };
 
