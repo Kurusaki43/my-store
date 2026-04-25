@@ -16,7 +16,9 @@ export const loginSchema = z.object({
   email: emailSchema,
   password: passwordSchema,
 });
-
+export const googleAuthSchema = z.object({
+  idToken: z.string({ error: 'idToken is required' }),
+});
 export const forgotPasswordSchema = z.object({
   email: emailSchema,
 });
@@ -42,4 +44,5 @@ export type ResetPasswordParamsDTO = z.infer<typeof resetPasswordParamsSchema>;
 
 export type LoginDTO = z.infer<typeof loginSchema>;
 export type RegisterDTO = z.infer<typeof registerSchema>;
+export type GoogleAuthDTO = z.infer<typeof googleAuthSchema>;
 export type ForgotPasswordDTO = z.infer<typeof forgotPasswordSchema>;

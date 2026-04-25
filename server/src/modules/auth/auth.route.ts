@@ -3,6 +3,7 @@ import { AuthController } from './auth.controller';
 import { validate } from '@/middlewares/validation';
 import {
   forgotPasswordSchema,
+  googleAuthSchema,
   loginSchema,
   registerSchema,
   resetPasswordParamsSchema,
@@ -14,6 +15,7 @@ export const authRoute = Router();
 
 authRoute.post('/register', validate({ body: registerSchema }), AuthController.register);
 authRoute.post('/login', validate({ body: loginSchema }), AuthController.login);
+authRoute.post('/google', validate({ body: googleAuthSchema }), AuthController.googleAuth);
 authRoute.post('/logout', AuthController.logout);
 authRoute.post('/refresh', AuthController.refresh);
 

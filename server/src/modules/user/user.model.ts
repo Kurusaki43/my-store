@@ -2,7 +2,7 @@ import type { Model } from 'mongoose';
 import { model, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import type { IUser } from './user.types';
-import { Role } from './user.types';
+import { Provider, Role } from './user.types';
 
 const userSchema = new Schema<IUser>(
   {
@@ -36,6 +36,11 @@ const userSchema = new Schema<IUser>(
     phone: { type: String },
     isActive: { type: Boolean, default: true },
     isVerified: { type: Boolean, default: false },
+    provider: {
+      type: String,
+      enum: Object.values(Provider),
+      default: Provider.LOCAL,
+    },
   },
   {
     timestamps: true,

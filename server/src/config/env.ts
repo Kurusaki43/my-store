@@ -28,6 +28,9 @@ const schema = z.object({
   }),
   EMAIL_FROM: z.string({ error: 'EMAIL_FROM is required (e.g. "MyStore" <no-reply@mystore.com>)' }),
   REDIS_URL: z.url('REDIS_URL must be a valid URL (e.g. redis://localhost:6379)'),
+  GOOGLE_CLIENT_ID: z.string({
+    error: 'GOOGLE_CLIENT_ID is required - provide your id',
+  }),
 });
 
 const result = schema.safeParse(process.env);
