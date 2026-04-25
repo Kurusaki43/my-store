@@ -10,15 +10,25 @@ import {
   resetPasswordSchema,
 } from './auth.validation';
 import { protect } from '@/middlewares/auth';
+import { authLimiter, refreshLimiter } from '@/middlewares/rateLimit';
 
 export const authRoute = Router();
 
-authRoute.post('/register', validate({ body: registerSchema }), AuthController.register);
-authRoute.post('/login', validate({ body: loginSchema }), AuthController.login);
-authRoute.post('/google', validate({ body: googleAuthSchema }), AuthController.googleAuth);
+authRoute.post(
+  '/register',
+  authLimiter,
+  validate({ body: registerSchema }),
+  AuthController.register,
+);
+authRoute.post('/login', authLimiter, validate({ body: loginSchema }), AuthController.login);
+authRoute.post(
+  '/google',
+  authLimiter,
+  validate({ body: googleAuthSchema }),
+  AuthController.googleAuth,
+);
 authRoute.post('/logout', AuthController.logout);
-authRoute.post('/refresh', AuthController.refresh);
-
+authRoute.post('/refresh', refreshLimiter, AuthController.refresh);
 authRoute.post(
   '/forgot-password',
   validate({ body: forgotPasswordSchema }),
