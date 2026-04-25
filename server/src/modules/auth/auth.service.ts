@@ -55,7 +55,9 @@ export const AuthService = {
     if (!user) {
       throw new AppError('Invalid email or password', HTTP_STATUS.UNAUTHORIZED);
     }
-
+    if (user.provider === Provider.GOOGLE) {
+      throw new AppError('You signed up with Google. Please continue using Google to sign in.');
+    }
     const isMatch = await user.comparePassword(loginData.password);
     if (!isMatch) {
       throw new AppError('Invalid email or password', HTTP_STATUS.UNAUTHORIZED);
