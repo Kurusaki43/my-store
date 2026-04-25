@@ -48,7 +48,7 @@ const SessionsPage = () => {
           ))}
         </CardContent>
         {isSuccess && (
-          <CardFooter>
+          <CardFooter className="rounded-b-none">
             <Link href="/">Go to Home</Link>
             <LogoutAlert
               btnLabel="Logout all devices"

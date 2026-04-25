@@ -35,9 +35,8 @@ const LogoutAlert = ({
       <AlertDialogTrigger asChild>
         <Button
           disabled={disableBtn}
-          variant="destructive"
           size="sm"
-          className="text-white font-bold cursor-pointer mx-auto sm:ml-auto sm:mr-0"
+          className="text-white bg-rose-500 hover:bg-rose-600 font-bold cursor-pointer mx-auto sm:ml-auto sm:mr-0"
         >
           {btnLabel || 'Logout'}
         </Button>
